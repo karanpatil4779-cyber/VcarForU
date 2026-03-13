@@ -1,0 +1,68 @@
+import type { City } from '../types/vehicle';
+
+export const cities: City[] = [
+  {
+    name: 'Delhi',
+    state: 'Delhi NCR',
+    lat: 28.6139,
+    lng: 77.2090,
+    vehicleCount: 35,
+    image: 'https://images.unsplash.com/photo-1587474260584-136574528ed5?auto=format&fit=crop&q=80&w=600',
+  },
+  {
+    name: 'Mumbai',
+    state: 'Maharashtra',
+    lat: 19.0760,
+    lng: 72.8777,
+    vehicleCount: 28,
+    image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&q=80&w=600',
+  },
+  {
+    name: 'Bangalore',
+    state: 'Karnataka',
+    lat: 12.9716,
+    lng: 77.5946,
+    vehicleCount: 22,
+    image: 'https://images.unsplash.com/photo-1596176530529-78163a4f7af2?auto=format&fit=crop&q=80&w=600',
+  },
+  {
+    name: 'Goa',
+    state: 'Goa',
+    lat: 15.2993,
+    lng: 74.1240,
+    vehicleCount: 18,
+    image: 'https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?auto=format&fit=crop&q=80&w=600',
+  },
+  {
+    name: 'Manali',
+    state: 'Himachal Pradesh',
+    lat: 32.2396,
+    lng: 77.1887,
+    vehicleCount: 10,
+    image: 'https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&q=80&w=600',
+  },
+  {
+    name: 'Rishikesh',
+    state: 'Uttarakhand',
+    lat: 30.0869,
+    lng: 78.2676,
+    vehicleCount: 8,
+    image: 'https://images.unsplash.com/photo-1600269452121-4f2416e55c28?auto=format&fit=crop&q=80&w=600',
+  },
+  {
+    name: 'Pune',
+    state: 'Maharashtra',
+    lat: 18.5204,
+    lng: 73.8567,
+    vehicleCount: 20,
+    image: 'https://images.unsplash.com/photo-1567157577867-05ccb1388e13?auto=format&fit=crop&q=80&w=600',
+  },
+  {
+    name: 'Hyderabad',
+    state: 'Telangana',
+    lat: 17.3850,
+    lng: 78.4867,
+    vehicleCount: 15,
+    image: 'https://images.unsplash.com/photo-1572427841249-2bca93122853?auto=format&fit=crop&q=80&w=600',
+  },
+];
