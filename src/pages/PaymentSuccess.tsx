@@ -1,105 +1,66 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { CheckCircle2, Copy, MapPin, Calendar, Car } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
 import Button from '../components/ui/Button';
 
-const PaymentSuccess: React.FC = () => {
-  const { state } = useLocation();
-  const navigate = useNavigate();
-  const [copied, setCopied] = useState(false);
-
-  // Use state data if available, otherwise fallback to localStorage
-  const booking = state?.booking || JSON.parse(localStorage.getItem('recentBooking') || 'null');
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (!booking) {
-      navigate('/');
-    }
-  }, [booking, navigate]);
-
-  if (!booking) return null;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(booking.id);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
+const PaymentSuccess = () => {
+  const raw = localStorage.getItem('booking');
+  const booking = raw ? JSON.parse(raw) : null;
 
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-slate-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-xl overflow-hidden animate-slide-up border border-slate-100">
-        <div className="bg-emerald-500 p-8 text-center text-white relative overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at center, #ffffff 2px, transparent 2px)', backgroundSize: '20px 20px' }} />
-          
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mb-4 shadow-lg animate-fade-in relative">
-               <div className="absolute inset-0 rounded-full border-4 border-emerald-400 animate-ping opacity-50" />
-               <CheckCircle2 className="h-10 w-10 text-emerald-500" />
-            </div>
-            <h1 className="text-3xl font-heading font-bold tracking-tight mb-2">Payment Successful!</h1>
-            <p className="text-emerald-50 font-medium">Your ride is confirmed and ready.</p>
+    <div className="min-h-[calc(100vh-64px)] bg-slate-50 flex items-center justify-center px-4">
+      <div className="max-w-md w-full text-center">
+        <div className="bg-white rounded-3xl shadow-xl border border-slate-200 p-10">
+          <div className="w-20 h-20 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="h-10 w-10 text-emerald-600" />
           </div>
-        </div>
 
-        <div className="p-8">
-          <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 mb-8 space-y-4">
-            <div className="flex justify-between items-center border-b border-slate-200 pb-4">
-              <span className="text-slate-500 font-medium text-sm">Booking ID</span>
-              <div className="flex items-center gap-2">
-                <span className="font-heading font-bold text-slate-900">{booking.id}</span>
-                <button onClick={handleCopy} className="text-slate-400 hover:text-primary-600 transition-colors">
-                  {copied ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
-                </button>
+          <h1 className="font-heading text-3xl font-bold text-slate-900 tracking-tight mb-2">
+            Payment Successful
+          </h1>
+          <p className="font-body text-[15px] text-slate-500 leading-relaxed mb-8">
+            Your booking has been confirmed. You will receive a confirmation on your registered email.
+          </p>
+
+          {booking && (
+            <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 text-left space-y-3 mb-8">
+              <div className="flex justify-between">
+                <span className="font-body text-[13px] text-slate-500 tracking-wide">Booking ID</span>
+                <span className="font-heading font-bold text-slate-900">{booking.bookingId}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-body text-[13px] text-slate-500 tracking-wide">Vehicle</span>
+                <span className="font-body font-semibold text-slate-900">{booking.vehicle}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-body text-[13px] text-slate-500 tracking-wide">City</span>
+                <span className="font-body font-semibold text-slate-900">{booking.city}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-body text-[13px] text-slate-500 tracking-wide">Date</span>
+                <span className="font-body font-semibold text-slate-900">{booking.date}</span>
+              </div>
+              <div className="flex justify-between pt-3 border-t border-slate-200">
+                <span className="font-heading font-bold text-slate-900">Amount Paid</span>
+                <span className="font-heading text-xl font-bold text-primary-600">₹{booking.price?.toLocaleString('en-IN')}</span>
               </div>
             </div>
-            
-            <div className="flex items-start gap-4 pt-2">
-               <div className="bg-primary-50 p-2.5 rounded-xl text-primary-600 mt-1">
-                 <Car className="h-5 w-5" />
-               </div>
-               <div>
-                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Vehicle</p>
-                 <p className="font-heading font-semibold text-slate-900">{booking.vehicle}</p>
-               </div>
-            </div>
+          )}
 
-            <div className="flex items-start gap-4">
-               <div className="bg-amber-50 p-2.5 rounded-xl text-amber-600 mt-1">
-                 <MapPin className="h-5 w-5" />
-               </div>
-               <div>
-                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pickup City</p>
-                 <p className="font-heading font-semibold text-slate-900">{booking.city}</p>
-               </div>
-            </div>
-
-            <div className="flex items-start gap-4 pb-2">
-               <div className="bg-purple-50 p-2.5 rounded-xl text-purple-600 mt-1">
-                 <Calendar className="h-5 w-5" />
-               </div>
-               <div>
-                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Date</p>
-                 <p className="font-heading font-semibold text-slate-900">{booking.date}</p>
-               </div>
-            </div>
-            
-            <div className="pt-4 border-t border-slate-200 flex justify-between items-center bg-slate-100/50 -mx-6 -mb-6 p-4 rounded-b-2xl">
-               <span className="text-slate-600 font-medium">Total Paid</span>
-               <span className="font-heading font-bold text-xl text-slate-900">₹{booking.price.toLocaleString('en-IN')}</span>
-            </div>
-          </div>
-
-          <div className="space-y-3">
+          <div className="flex flex-col gap-3">
             <Link to="/dashboard">
-               <Button className="w-full shadow-primary-200 h-12 text-base">View on Dashboard</Button>
+              <Button size="lg" className="w-full rounded-2xl shadow-primary-200">
+                View Booking <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
             </Link>
             <Link to="/">
-               <Button variant="outline" className="w-full text-slate-600 border-slate-200 h-12 text-base">Back to Home</Button>
+              <Button variant="outline" size="lg" className="w-full rounded-2xl">
+                Back to Home
+              </Button>
             </Link>
           </div>
         </div>
+
+        <p className="font-body text-[11px] text-slate-400 tracking-wide mt-6">Secured by PayU &bull; Booking ref stored locally</p>
       </div>
     </div>
   );

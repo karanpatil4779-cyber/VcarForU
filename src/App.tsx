@@ -9,6 +9,9 @@ import SearchResults from './pages/SearchResults';
 import Dashboard from './pages/Dashboard';
 import Login from './pages/Login';
 import VehicleDetails from './pages/VehicleDetails';
+import PayMock from './pages/PayMock';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailure from './pages/PaymentFailure';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
@@ -21,15 +24,15 @@ const Navbar = () => {
             <div className="bg-primary-600 p-2 rounded-xl shadow-sm">
               <Car className="h-6 w-6 text-white" />
             </div>
-            <span className="text-2xl font-black tracking-tight text-slate-900">vCar<span className="text-primary-600">U</span></span>
+            <span className="font-heading text-2xl font-extrabold tracking-tight text-slate-900">vCar<span className="text-primary-600">U</span></span>
           </Link>
           
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/search" className="text-slate-600 hover:text-primary-600 font-bold text-sm transition-colors">Browse Vehicles</Link>
-            <Link to="/search" className="text-slate-600 hover:text-primary-600 font-bold text-sm transition-colors">Cities</Link>
-            <Link to="/dashboard" className="text-slate-600 hover:text-primary-600 font-bold text-sm transition-colors">Agency Portal</Link>
+            <Link to="/search" className="font-body text-[13px] font-medium tracking-wide text-slate-600 hover:text-primary-600 transition-colors">Browse Vehicles</Link>
+            <Link to="/search" className="font-body text-[13px] font-medium tracking-wide text-slate-600 hover:text-primary-600 transition-colors">Cities</Link>
+            <Link to="/dashboard" className="font-body text-[13px] font-medium tracking-wide text-slate-600 hover:text-primary-600 transition-colors">Agency Portal</Link>
             <div className="w-px h-6 bg-slate-200" />
-            <Link to="/login" className="text-slate-600 hover:text-primary-600 font-bold text-sm transition-colors">Login</Link>
+            <Link to="/login" className="font-body text-[13px] font-medium tracking-wide text-slate-600 hover:text-primary-600 transition-colors">Login</Link>
             <Button size="sm" className="shadow-primary-200">Get Started</Button>
           </div>
 
@@ -65,6 +68,9 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<SearchResults />} />
           <Route path="/vehicle/:id" element={<VehicleDetails />} />
+          <Route path="/checkout/:id" element={<PayMock />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-failure" element={<PaymentFailure />} />
           <Route path="/map" element={<SearchResults />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/login" element={<Login />} />
@@ -76,14 +82,14 @@ const App = () => {
             <div className="col-span-1 md:col-span-2">
               <div className="flex items-center gap-2 mb-4">
                 <Car className="h-8 w-8 text-primary-400" />
-                <span className="text-3xl font-black tracking-tight">vCarU</span>
+                <span className="font-heading text-3xl font-extrabold tracking-tight">vCarU</span>
               </div>
               <p className="text-slate-400 max-w-sm">
                 The most reliable platform for car and bike rentals. Connecting you with premium agencies worldwide.
               </p>
             </div>
             <div>
-              <h4 className="font-bold mb-4">Quick Links</h4>
+              <h4 className="font-heading font-semibold mb-4">Quick Links</h4>
               <ul className="space-y-2 text-slate-400">
                 <li><Link to="/search" className="hover:text-primary-400">Search</Link></li>
                 <li><Link to="/map" className="hover:text-primary-400">Map</Link></li>
@@ -91,7 +97,7 @@ const App = () => {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold mb-4">Contact</h4>
+              <h4 className="font-heading font-semibold mb-4">Contact</h4>
               <ul className="space-y-2 text-slate-400">
                 <li>support@vcaru.com</li>
                 <li>+1 (555) 000-0000</li>

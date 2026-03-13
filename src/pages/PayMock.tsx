@@ -1,183 +1,226 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ShieldCheck, ChevronLeft, CreditCard, Building2, Wallet } from 'lucide-react';
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { ShieldCheck, CreditCard, Smartphone, Building2, Wallet, Lock } from 'lucide-react';
 import Button from '../components/ui/Button';
+import { vehicles } from '../data/vehicles';
+import type { Vehicle } from '../types/vehicle';
 
-const PayMock: React.FC = () => {
-  const { state } = useLocation();
+const PAYMENT_METHODS = [
+  { id: 'upi', label: 'UPI', icon: Smartphone },
+  { id: 'card', label: 'Card', icon: CreditCard },
+  { id: 'netbanking', label: 'Net Banking', icon: Building2 },
+  { id: 'wallet', label: 'Wallet', icon: Wallet },
+];
+
+const PayMock = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [selectedMethod, setSelectedMethod] = useState('UPI');
+  const vehicle = vehicles.find((v: Vehicle) => v.id === id);
+  const [selectedMethod, setSelectedMethod] = useState('upi');
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  const vehicle = state?.vehicle;
+  if (!vehicle) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <h2 className="font-heading text-2xl font-bold mb-2">Vehicle Not Found</h2>
+          <Button onClick={() => navigate('/search')}>Back to Search</Button>
+        </div>
+      </div>
+    );
+  }
 
-  // Protect route if accessed without vehicle data
-  useEffect(() => {
-    if (!vehicle) {
-      navigate('/search');
-    }
-  }, [vehicle, navigate]);
-
-  if (!vehicle) return null;
+  const rental = vehicle.pricePerDay;
+  const deposit = vehicle.deposit;
+  const gst = Math.floor(rental * 0.18);
+  const total = rental + deposit + gst;
 
   const handlePayment = () => {
-    setLoading(true);
-
-    const bookingData = {
-      id: `VCU${Math.floor(Math.random() * 90000) + 10000}`,
-      vehicle: vehicle.name,
-      price: vehicle.pricePerDay * 3 + vehicle.deposit + 749, // Mock total
-      city: vehicle.city || vehicle.location,
-      date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }),
-    };
-
-    // Save to local storage
-    localStorage.setItem('recentBooking', JSON.stringify(bookingData));
-
+    setIsProcessing(true);
     setTimeout(() => {
-      navigate('/payment-success', { state: { booking: bookingData } });
+      const success = Math.random() > 0.2;
+      if (success) {
+        const bookingId = 'VCU' + Math.floor(10000 + Math.random() * 90000);
+        localStorage.setItem(
+          'booking',
+          JSON.stringify({
+            bookingId,
+            vehicle: vehicle.name,
+            brand: vehicle.brand,
+            price: total,
+            city: vehicle.city,
+            date: new Date().toLocaleDateString('en-IN'),
+            method: selectedMethod,
+          })
+        );
+        navigate('/payment-success');
+      } else {
+        navigate('/payment-failure');
+      }
     }, 2500);
   };
 
-  const totalAmount = vehicle.pricePerDay * 3 + vehicle.deposit + 749;
-
   return (
-    <div className="min-h-[calc(100vh-64px)] bg-slate-50 py-12 px-4 animate-fade-in">
-      <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-8">
-        
-        {/* Left Side: Payment Details */}
-        <div className="flex-1 space-y-6">
-          <button 
-            onClick={() => navigate(-1)}
-            className="flex items-center text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" /> Back to Vehicle
-          </button>
-          
+    <div className="min-h-[calc(100vh-64px)] bg-slate-100 py-10 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* PayU Header */}
+        <div className="bg-primary-600 text-white rounded-t-3xl px-8 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-heading font-bold text-slate-900 tracking-tight mb-2">Secure Checkout</h1>
-            <p className="text-slate-500 font-body text-sm flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-500" /> Powered by PayU
-            </p>
+            <p className="font-body text-primary-200 text-[13px] tracking-wide uppercase">Secure Checkout</p>
+            <h1 className="font-heading text-2xl font-bold tracking-tight">PayU Payment Gateway</h1>
+          </div>
+          <div className="flex items-center gap-2 bg-white/10 backdrop-blur px-3 py-2 rounded-xl">
+            <Lock className="h-4 w-4" />
+            <span className="font-body text-[11px] font-medium tracking-wide">256-bit SSL</span>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-b-3xl shadow-xl border border-slate-200 overflow-hidden">
+          {/* Processing Overlay */}
+          {isProcessing && (
+            <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center rounded-b-3xl">
+              <svg className="animate-spin h-12 w-12 text-primary-600 mb-6" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p className="font-heading text-xl font-bold text-slate-900 mb-1">Processing payment...</p>
+              <p className="font-body text-[13px] text-slate-500 tracking-wide">Secured by PayU</p>
+            </div>
+          )}
+
+          {/* Order Summary */}
+          <div className="px-8 py-6 border-b border-slate-100">
+            <h2 className="font-heading text-lg font-semibold text-slate-900 tracking-tight mb-4">Order Summary</h2>
+            <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <p className="font-heading font-semibold text-slate-900 tracking-tight">{vehicle.name}</p>
+                  <p className="font-body text-[13px] text-slate-500 tracking-wide">{vehicle.brand} &bull; {vehicle.category.replace('-', ' ')}</p>
+                </div>
+                <span className="font-body text-[10px] font-medium tracking-wide text-primary-600 bg-primary-50 px-2 py-1 rounded-md border border-primary-100 uppercase">1 Day</span>
+              </div>
+
+              <div className="space-y-3 text-sm border-t border-slate-200 pt-4">
+                <div className="flex justify-between">
+                  <span className="font-body text-slate-500">Vehicle Rental (1 day)</span>
+                  <span className="font-body font-semibold text-slate-900">&Rs;{rental.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-body text-slate-500">Refundable Deposit</span>
+                  <span className="font-body font-semibold text-slate-900">&Rs;{deposit.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="font-body text-slate-500">GST (18%)</span>
+                  <span className="font-body font-semibold text-slate-900">&Rs;{gst.toLocaleString('en-IN')}</span>
+                </div>
+              </div>
+
+              <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-200">
+                <span className="font-heading font-bold text-slate-900">Total Payable</span>
+                <span className="font-heading text-2xl font-bold text-primary-600">₹{total.toLocaleString('en-IN')}</span>
+              </div>
+            </div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-              <h2 className="font-heading font-semibold text-lg text-slate-900">Select Payment Method</h2>
-            </div>
-            
-            <div className="p-6 space-y-4">
-              {[
-                { id: 'UPI', label: 'UPI / QR Code', icon: <span className="font-black text-xs text-primary-600">UPI</span> },
-                { id: 'CARD', label: 'Credit / Debit Card', icon: <CreditCard className="h-5 w-5 text-slate-600" /> },
-                { id: 'NETBANKING', label: 'Net Banking', icon: <Building2 className="h-5 w-5 text-slate-600" /> },
-                { id: 'WALLET', label: 'Wallets', icon: <Wallet className="h-5 w-5 text-slate-600" /> }
-              ].map((method) => (
-                <div 
+          {/* Payment Methods */}
+          <div className="px-8 py-6 border-b border-slate-100">
+            <h2 className="font-heading text-lg font-semibold text-slate-900 tracking-tight mb-4">Payment Method</h2>
+            <div className="grid grid-cols-4 gap-3">
+              {PAYMENT_METHODS.map((method) => (
+                <button
                   key={method.id}
                   onClick={() => setSelectedMethod(method.id)}
-                  className={`p-4 rounded-xl border-2 flex items-center justify-between cursor-pointer transition-all ${
-                    selectedMethod === method.id 
-                      ? 'border-primary-500 bg-primary-50/50' 
-                      : 'border-slate-100 hover:border-slate-200 bg-white'
+                  className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all ${
+                    selectedMethod === method.id
+                      ? 'border-primary-500 bg-primary-50 text-primary-700'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center border border-slate-200">
-                      {method.icon}
-                    </div>
-                    <span className="font-heading font-semibold text-slate-900">{method.label}</span>
-                  </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                    selectedMethod === method.id ? 'border-primary-500' : 'border-slate-300'
-                  }`}>
-                    {selectedMethod === method.id && <div className="w-2.5 h-2.5 rounded-full bg-primary-500 animate-fade-in" />}
-                  </div>
-                </div>
+                  <method.icon className="h-6 w-6" />
+                  <span className="font-body text-[11px] font-medium tracking-wide">{method.label}</span>
+                </button>
               ))}
             </div>
+          </div>
 
-            {selectedMethod === 'UPI' && (
-              <div className="p-6 bg-slate-50 border-t border-slate-100 text-center animate-slide-up">
-                <div className="w-48 h-48 bg-white border-2 border-slate-200 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-sm">
-                  <div className="text-center text-slate-400 font-body text-sm">
-                     <p className="mb-2">Mock QR Code</p>
-                     <p>(Scan to test)</p>
-                  </div>
+          {/* Method-specific UI */}
+          <div className="px-8 py-6 border-b border-slate-100">
+            {selectedMethod === 'upi' && (
+              <div className="space-y-4">
+                <div>
+                  <label className="font-body text-[13px] font-medium text-slate-700 block mb-2">UPI ID</label>
+                  <input
+                    type="text"
+                    placeholder="yourname@upi"
+                    className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-body text-sm text-slate-900 outline-none focus:border-primary-500"
+                  />
                 </div>
-                <p className="text-sm font-medium text-slate-600">Scan with any UPI app to pay</p>
-                <div className="flex items-center justify-center gap-2 mt-4 opacity-50">
-                  <span className="text-xs font-bold text-slate-500">GPay</span>
-                  <span className="text-xs font-bold text-slate-500">PhonePe</span>
-                  <span className="text-xs font-bold text-slate-500">Paytm</span>
+                <div className="text-center py-4">
+                  <div className="w-32 h-32 mx-auto bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex items-center justify-center mb-2">
+                    <Smartphone className="h-10 w-10 text-slate-300" />
+                  </div>
+                  <p className="font-body text-[13px] text-slate-400 tracking-wide">Or scan QR to pay</p>
                 </div>
               </div>
             )}
-            
-            <div className="p-6 border-t border-slate-100">
-              <Button 
-                onClick={handlePayment} 
-                className="w-full text-lg shadow-primary-200 h-14 relative"
-                isLoading={loading}
-              >
-                {!loading && (
-                  <>
-                    Pay ₹{totalAmount.toLocaleString('en-IN')}
-                    <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center gap-1.5 opacity-60 mix-blend-screen">
-                      <span className="text-[10px] font-black uppercase tracking-widest">via</span>  
-                      <span className="text-sm font-black font-heading tracking-tight">PayU</span>
-                    </div>
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Right Side: Order Summary */}
-        <div className="md:w-96">
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 sticky top-24">
-            <div className="p-6 border-b border-slate-100 bg-slate-50/50">
-              <h2 className="font-heading font-semibold text-lg text-slate-900">Order Summary</h2>
-            </div>
-            <div className="p-6 space-y-6">
-              <div className="flex gap-4 items-center">
-                <div className="w-20 h-20 bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
-                  <span className="text-slate-700 font-black text-xl tracking-tighter transform -rotate-12 line-clamp-1 truncate px-2 mix-blend-screen">
-                    {vehicle.brand.toUpperCase()}
-                  </span>
-                </div>
+            {selectedMethod === 'card' && (
+              <div className="space-y-4">
                 <div>
-                  <h3 className="font-heading font-semibold text-slate-900 tracking-tight">{vehicle.name}</h3>
-                  <p className="text-xs text-slate-500 font-body mt-1">3 Days • {vehicle.location}</p>
+                  <label className="font-body text-[13px] font-medium text-slate-700 block mb-2">Card Number</label>
+                  <input type="text" placeholder="4111 1111 1111 1111" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-body text-sm text-slate-900 outline-none focus:border-primary-500" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-body text-[13px] font-medium text-slate-700 block mb-2">Expiry</label>
+                    <input type="text" placeholder="MM/YY" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-body text-sm text-slate-900 outline-none focus:border-primary-500" />
+                  </div>
+                  <div>
+                    <label className="font-body text-[13px] font-medium text-slate-700 block mb-2">CVV</label>
+                    <input type="password" placeholder="•••" className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-body text-sm text-slate-900 outline-none focus:border-primary-500" />
+                  </div>
                 </div>
               </div>
+            )}
+            {selectedMethod === 'netbanking' && (
+              <div>
+                <label className="font-body text-[13px] font-medium text-slate-700 block mb-2">Select Bank</label>
+                <select className="w-full bg-slate-50 border border-slate-200 p-3 rounded-xl font-body text-sm text-slate-900 outline-none focus:border-primary-500">
+                  <option>State Bank of India</option>
+                  <option>HDFC Bank</option>
+                  <option>ICICI Bank</option>
+                  <option>Axis Bank</option>
+                  <option>Punjab National Bank</option>
+                </select>
+              </div>
+            )}
+            {selectedMethod === 'wallet' && (
+              <div className="grid grid-cols-3 gap-3">
+                {['Paytm', 'PhonePe', 'Amazon Pay'].map((w) => (
+                  <button key={w} className="p-4 rounded-2xl border border-slate-200 hover:border-primary-500 text-center transition-all">
+                    <p className="font-heading font-semibold text-sm text-slate-900">{w}</p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-              <div className="space-y-3 font-body text-sm text-slate-600">
-                <div className="flex justify-between">
-                  <span>Rental Fare (3 days)</span>
-                  <span className="font-medium text-slate-900">₹{(vehicle.pricePerDay * 3).toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Refundable Deposit</span>
-                  <span className="font-medium text-slate-900">₹{vehicle.deposit.toLocaleString('en-IN')}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Taxes & Fees (GST 18%)</span>
-                  <span className="font-medium text-slate-900">₹749</span>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
-                <span className="font-heading font-bold text-slate-900">Total Amount</span>
-                <span className="text-2xl font-heading font-bold text-primary-600">
-                  ₹{totalAmount.toLocaleString('en-IN')}
-                </span>
-              </div>
+          {/* Pay Button */}
+          <div className="px-8 py-6">
+            <Button
+              size="lg"
+              className="w-full rounded-2xl shadow-primary-200 h-14 text-lg"
+              onClick={handlePayment}
+              disabled={isProcessing}
+              isLoading={isProcessing}
+            >
+              Pay ₹{total.toLocaleString('en-IN')}
+            </Button>
+            <div className="flex items-center justify-center gap-2 mt-4">
+              <ShieldCheck className="h-4 w-4 text-emerald-500" />
+              <span className="font-body text-[11px] text-slate-400 tracking-wide">100% Secure Payment &bull; Powered by PayU</span>
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

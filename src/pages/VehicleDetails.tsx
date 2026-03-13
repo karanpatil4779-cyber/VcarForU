@@ -46,7 +46,7 @@ const VehicleDetails = () => {
                   <span className="inline-block py-1 px-3 rounded-md bg-primary-50 border border-primary-100 text-primary-600 text-[10px] font-black tracking-widest uppercase mb-3">
                     {vehicle.category.replace('-', ' ')}
                   </span>
-                  <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight">{vehicle.name}</h1>
+                  <h1 className="font-heading text-4xl md:text-5xl font-bold text-slate-900 tracking-tight">{vehicle.name}</h1>
                 </div>
               </div>
               
@@ -140,8 +140,8 @@ const VehicleDetails = () => {
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Price</p>
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black text-slate-900">₹{vehicle.pricePerDay}</span>
-                    <span className="text-sm font-bold text-slate-500">/day</span>
+                  <span className="font-heading text-4xl font-bold text-slate-900">₹{vehicle.pricePerDay}</span>
+                    <span className="font-body text-sm text-slate-500">/day</span>
                   </div>
                 </div>
               </div>
@@ -178,17 +178,19 @@ const VehicleDetails = () => {
 
               <div className="pt-6 border-t border-slate-100 mb-6">
                 <div className="flex justify-between items-center mb-1">
-                  <span className="text-lg font-black text-slate-900">Total Due Today</span>
-                  <span className="text-2xl font-black text-primary-600">
+                  <span className="font-heading text-lg font-bold text-slate-900">Total Due Today</span>
+                  <span className="font-heading text-2xl font-bold text-primary-600">
                     ₹{vehicle.pricePerDay + vehicle.deposit + Math.floor(vehicle.pricePerDay * 0.18)}
                   </span>
                 </div>
                 <p className="text-[10px] text-right text-emerald-600 font-bold uppercase tracking-wider">Fully Refundable Deposit Included</p>
               </div>
 
-              <Button size="lg" className="w-full rounded-2xl shadow-primary-200 h-14 text-lg">
-                Proceed to Pay
-              </Button>
+              <Link to={`/checkout/${vehicle.id}`}>
+                <Button size="lg" className="w-full rounded-2xl shadow-primary-200 h-14 text-lg">
+                  Proceed to Pay
+                </Button>
+              </Link>
               <div className="mt-4 flex justify-center gap-3">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">WE ACCEPT:</span>
                 <span className="text-xs font-bold text-slate-600">UPI</span>

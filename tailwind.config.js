@@ -6,6 +6,10 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        heading: ['"Plus Jakarta Sans"', 'sans-serif'],
+        body: ['Inter', 'sans-serif'],
+      },
       colors: {
         primary: {
           50: '#eff6ff',

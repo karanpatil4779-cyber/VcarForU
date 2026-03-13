@@ -36,7 +36,7 @@ type MockBooking = typeof MOCK_BOOKINGS[0];
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('Overview');
   const [selectedBooking, setSelectedBooking] = useState<MockBooking | null>(null);
-  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [selectedVehicle, setSelectedVehicle] = useState<(typeof MOCK_FLEET)[0] | null>(null);
 
   const TABS = [
     { icon: LayoutDashboard, label: 'Overview' },
@@ -316,7 +316,8 @@ const Dashboard = () => {
 
   const renderCustomers = () => {
     // Group bookings by email to simulate unique customers
-    const customersMap: Record<string, any> = MOCK_BOOKINGS.reduce((acc: any, current) => {
+    type CustomerRecord = MockBooking & { bookings: number; totalSpend: number };
+    const customersMap: Record<string, CustomerRecord> = MOCK_BOOKINGS.reduce((acc: Record<string, CustomerRecord>, current) => {
       if (!acc[current.email]) {
         acc[current.email] = { ...current, bookings: 0, totalSpend: 0 };
       }
@@ -349,7 +350,7 @@ const Dashboard = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
-                {customers.map((c: any, i: number) => (
+                {customers.map((c: CustomerRecord, i: number) => (
                   <tr key={i} className="hover:bg-slate-50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">

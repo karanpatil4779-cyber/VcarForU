@@ -34,12 +34,12 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
         {/* Header: Name, Agency, Price */}
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="font-bold text-lg text-slate-900 line-clamp-1" title={vehicle.name}>{vehicle.name}</h3>
-            <p className="text-sm text-slate-500 font-medium">{vehicle.agency}</p>
+            <h3 className="font-heading font-semibold text-lg text-slate-900 tracking-tight line-clamp-1" title={vehicle.name}>{vehicle.name}</h3>
+            <p className="font-body text-sm text-slate-500">{vehicle.agency}</p>
           </div>
           <div className="text-right shrink-0 ml-4">
-            <p className="text-xl font-black text-primary-600">₹{vehicle.pricePerDay}</p>
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">/ day</p>
+            <p className="font-heading text-xl font-bold text-primary-600">₹{vehicle.pricePerDay}</p>
+            <p className="font-body text-[10px] text-slate-400 tracking-wide">/ day</p>
           </div>
         </div>
 
@@ -84,7 +84,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
         {/* Features Chips */}
         <div className="flex flex-wrap gap-1.5 mb-6">
           {vehicle.features.slice(0, 3).map((feature, idx) => (
-            <span key={idx} className="bg-primary-50 text-primary-700 text-[10px] font-bold px-2 py-1 rounded-md border border-primary-100">
+            <span key={idx} className="bg-primary-50 text-primary-700 text-[10px] font-medium tracking-wide px-2 py-1 rounded-md border border-primary-100">
               {feature}
             </span>
           ))}
