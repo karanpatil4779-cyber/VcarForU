@@ -671,7 +671,7 @@ const Dashboard = () => {
             
             <div className="p-4 border-t border-slate-200 bg-white grid grid-cols-2 gap-3">
               <Button variant="outline" className="w-full text-slate-700 border-slate-300">Edit Details</Button>
-              <Button className="w-full shadow-primary-200 bg-rose-500 hover:bg-rose-600 shadow-rose-200">Unlist Vehicle</Button>
+              <Button className="w-full shadow-rose-200 bg-rose-500 hover:bg-rose-600">Unlist Vehicle</Button>
             </div>
           </div>
         )}
