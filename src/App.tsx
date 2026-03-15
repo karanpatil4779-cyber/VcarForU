@@ -1,3 +1,4 @@
+import AgencyDashboard from "./pages/AgencyDashboard";
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import { Car, Menu, X } from 'lucide-react';
@@ -73,6 +74,7 @@ const App = () => {
           <Route path="/payment-failure" element={<PaymentFailure />} />
           <Route path="/map" element={<SearchResults />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/agency-dashboard" element={<AgencyDashboard />} />
           <Route path="/login" element={<Login />} />
         </Routes>
         
