@@ -21,13 +21,26 @@ const Dashboard = () => {
 
   if (user.role === 'agency') {
     const bookings = getBookingsByAgency(user.id);
-    const earnings = bookings.reduce((sum, b) => sum + b.amount, 0);
-    const active = bookings.filter((b) => b.status === 'Confirmed').length;
-    const pending = bookings.filter((b) => b.status === 'Confirmed' && new Date(b.createdAt) >= new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)).length;
-    const uniqueCustomers = new Set(bookings.map((b) => b.userId)).size;
+    const mockAgencyBookings = [
+      { id: 'A-101', userId: 'C-1001', userName: 'Aarav Singh', userEmail: 'aarav@example.com', vehicle: 'Hyundai Creta', brand: 'Hyundai', city: 'Mumbai', date: '15 Mar 2026', amount: 3600, paymentMethod: 'UPI', status: 'Confirmed', agencyId: user.id, createdAt: '2026-03-15T08:00:00Z' },
+      { id: 'A-102', userId: 'C-1002', userName: 'Jiya Patel', userEmail: 'jiya@example.com', vehicle: 'Maruti Swift', brand: 'Maruti', city: 'Pune', date: '14 Mar 2026', amount: 2600, paymentMethod: 'Card', status: 'Confirmed', agencyId: user.id, createdAt: '2026-03-14T11:00:00Z' },
+      { id: 'A-103', userId: 'C-1003', userName: 'Rohit Yadav', userEmail: 'rohit@example.com', vehicle: 'Toyota Innova', brand: 'Toyota', city: 'Nashik', date: '13 Mar 2026', amount: 5600, paymentMethod: 'UPI', status: 'Completed', agencyId: user.id, createdAt: '2026-03-13T10:00:00Z' },
+      { id: 'A-104', userId: 'C-1004', userName: 'Sana Khan', userEmail: 'sana@example.com', vehicle: 'Kia Seltos', brand: 'Kia', city: 'Mumbai', date: '12 Mar 2026', amount: 4200, paymentMethod: 'Wallet', status: 'Confirmed', agencyId: user.id, createdAt: '2026-03-12T09:00:00Z' },
+      { id: 'A-105', userId: 'C-1005', userName: 'Ishaan Verma', userEmail: 'ishaan@example.com', vehicle: 'Honda City', brand: 'Honda', city: 'Pune', date: '11 Mar 2026', amount: 3100, paymentMethod: 'Card', status: 'Completed', agencyId: user.id, createdAt: '2026-03-11T15:00:00Z' },
+      { id: 'A-106', userId: 'C-1006', userName: 'Nikhita Joshi', userEmail: 'nikhita@example.com', vehicle: 'Mahindra XUV', brand: 'Mahindra', city: 'Aurangabad', date: '10 Mar 2026', amount: 5100, paymentMethod: 'Net Banking', status: 'Confirmed', agencyId: user.id, createdAt: '2026-03-10T14:00:00Z' },
+      { id: 'A-107', userId: 'C-1007', userName: 'Dev Sharma', userEmail: 'dev@example.com', vehicle: 'Renault Duster', brand: 'Renault', city: 'Mumbai', date: '09 Mar 2026', amount: 3600, paymentMethod: 'Card', status: 'Confirmed', agencyId: user.id, createdAt: '2026-03-09T13:00:00Z' },
+      { id: 'A-108', userId: 'C-1008', userName: 'Ananya Rao', userEmail: 'ananya@example.com', vehicle: 'Hyundai i20', brand: 'Hyundai', city: 'Pune', date: '08 Mar 2026', amount: 2300, paymentMethod: 'UPI', status: 'Completed', agencyId: user.id, createdAt: '2026-03-08T12:00:00Z' },
+      { id: 'A-109', userId: 'C-1009', userName: 'Vikram Singh', userEmail: 'vikram@example.com', vehicle: 'Maruti Dzire', brand: 'Maruti', city: 'Nashik', date: '07 Mar 2026', amount: 2800, paymentMethod: 'Wallet', status: 'Confirmed', agencyId: user.id, createdAt: '2026-03-07T11:00:00Z' },
+      { id: 'A-110', userId: 'C-1010', userName: 'Mira Mehta', userEmail: 'mira@example.com', vehicle: 'Honda Amaze', brand: 'Honda', city: 'Mumbai', date: '06 Mar 2026', amount: 2900, paymentMethod: 'Card', status: 'Completed', agencyId: user.id, createdAt: '2026-03-06T10:00:00Z' },
+    ];
+    const displayBookings = bookings.length ? bookings : mockAgencyBookings;
+    const earnings = displayBookings.reduce((sum, b) => sum + b.amount, 0);
+    const active = displayBookings.filter((b) => b.status === 'Confirmed').length;
+    const pending = displayBookings.filter((b) => b.status === 'Confirmed' && new Date(b.createdAt) >= new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)).length;
+    const uniqueCustomers = new Set(displayBookings.map((b) => b.userId)).size;
     const maintenance = 18000;
     const rating = 4.8;
-    const upcoming = bookings.filter((b) => b.status === 'Confirmed').slice(-5).reverse();
+    const upcoming = displayBookings.filter((b) => b.status === 'Confirmed').slice(-5).reverse();
 
     return (
       <div className="min-h-screen bg-slate-100 p-4 md:p-6">
@@ -94,10 +107,18 @@ const Dashboard = () => {
 
   const bookings = getBookingsByUser(user.id);
   const feedbacks = getFeedbackByUser(user.id);
-  const totalSpend = bookings.reduce((acc, b) => acc + b.amount, 0);
-  const canceled = bookings.filter((b) => b.status === 'Cancelled').length;
-  const cityCounts = bookings.reduce<Record<string, number>>((acc, b) => { acc[b.city] = (acc[b.city] || 0) + 1; return acc; }, {});
-  const completed = bookings.filter((b) => b.status === 'Confirmed').length;
+  const mockCustomerRides = [
+    { id: 'C-5001', vehicle: 'Hyundai Creta', city: 'Mumbai', date: '16 Mar 2026', amount: 3600, status: 'Confirmed' },
+    { id: 'C-5002', vehicle: 'Maruti Swift', city: 'Pune', date: '15 Mar 2026', amount: 2500, status: 'Completed' },
+    { id: 'C-5003', vehicle: 'Toyota Innova', city: 'Nashik', date: '14 Mar 2026', amount: 5600, status: 'Completed' },
+    { id: 'C-5004', vehicle: 'Kia Seltos', city: 'Mumbai', date: '13 Mar 2026', amount: 4200, status: 'Confirmed' },
+    { id: 'C-5005', vehicle: 'Honda City', city: 'Pune', date: '12 Mar 2026', amount: 3100, status: 'Cancelled' },
+  ];
+  const displayBookings = bookings.length ? bookings : mockCustomerRides;
+  const totalSpend = displayBookings.reduce((acc, b) => acc + b.amount, 0);
+  const canceled = displayBookings.filter((b) => b.status === 'Cancelled').length;
+  const cityCounts = displayBookings.reduce<Record<string, number>>((acc, b) => { acc[b.city] = (acc[b.city] || 0) + 1; return acc; }, {});
+  const completed = displayBookings.filter((b) => b.status === 'Confirmed').length;
   const topCity = Object.entries(cityCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'N/A';
 
   return (
@@ -139,10 +160,10 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-4">
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3">
               <div className="flex justify-between items-center"><h3 className="font-semibold">Recent Rides</h3><span className="text-xs text-slate-500">Last 5</span></div>
-              {bookings.length === 0 ? <p className="text-slate-500 mt-2">No rides yet.</p> : bookings.slice(-5).reverse().map((b) => (
+              {displayBookings.length === 0 ? <p className="text-slate-500 mt-2">No rides yet.</p> : displayBookings.slice(-5).reverse().map((b) => (
                 <div key={b.id} className="mt-2 border-t border-slate-200 pt-2">
                   <div className="flex justify-between"><p className="font-semibold">{b.vehicle}</p><p className="text-xs text-slate-500">₹{b.amount}</p></div>
-                  <p className="text-xs text-slate-500">{b.city}  {b.date}</p>
+                  <p className="text-xs text-slate-500">{b.city} • {b.date}</p>
                 </div>
               ))}
             </div>
