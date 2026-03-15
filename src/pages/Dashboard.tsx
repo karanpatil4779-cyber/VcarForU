@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { getBookingsByUser, getFeedbackByUser, getBookingsByAgency } from '../utils/bookings';
 import Button from '../components/ui/Button';
@@ -6,6 +7,8 @@ import Button from '../components/ui/Button';
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [agencyTab, setAgencyTab] = useState<'overview'|'fleet'|'bookings'|'analytics'|'customers'>('overview');
+  const [customerTab, setCustomerTab] = useState<'overview'|'history'|'feedback'|'analytics'>('overview');
 
   if (!user) {
     return (
@@ -41,6 +44,17 @@ const Dashboard = () => {
     const maintenance = 18000;
     const rating = 4.8;
     const upcoming = displayBookings.filter((b) => b.status === 'Confirmed').slice(-5).reverse();
+    const agencyFleet = [
+      { id: 'V-201', model: 'Hyundai Creta', status: 'Available', city: 'Mumbai' },
+      { id: 'V-202', model: 'Maruti Swift', status: 'Booked', city: 'Pune' },
+      { id: 'V-203', model: 'Toyota Innova', status: 'Available', city: 'Nashik' },
+      { id: 'V-204', model: 'Kia Seltos', status: 'Service', city: 'Mumbai' },
+    ];
+    const agencyCustomers = [
+      { id: 'C-1001', name: 'Aarav Singh', rides: 12, city: 'Mumbai' },
+      { id: 'C-1002', name: 'Jiya Patel', rides: 8, city: 'Pune' },
+      { id: 'C-1003', name: 'Rohit Yadav', rides: 15, city: 'Nashik' },
+    ];
 
     return (
       <div className="min-h-screen bg-slate-100 p-4 md:p-6">
@@ -50,8 +64,8 @@ const Dashboard = () => {
             <h1 className="mt-2 text-2xl font-black text-slate-900">{user.name}</h1>
             <p className="mt-1 text-slate-500 text-sm">Fleet performance, revenue, and customer insights.</p>
             <div className="mt-4 space-y-2">
-              {['Overview', 'My Fleet', 'Reservations', 'Analytics', 'Customers'].map((item) => (
-                <button key={item} className="w-full text-left px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-semibold text-sm">{item}</button>
+              {([['Overview','overview'], ['My Fleet','fleet'], ['Reservations','bookings'], ['Analytics','analytics'], ['Customers','customers']] as const).map(([label, tab]) => (
+                <button key={label} onClick={() => setAgencyTab(tab)} className={`w-full text-left px-3 py-2 rounded-xl border ${agencyTab === tab ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'} font-semibold text-sm`}>{label}</button>
               ))}
             </div>
             <div className="mt-4 border-t border-slate-200 pt-3 text-xs text-slate-500">
@@ -99,6 +113,38 @@ const Dashboard = () => {
                 <div className="bg-white rounded-xl border border-slate-200 p-2"><p className="text-xs uppercase text-slate-500">Bookings</p><p className="font-bold">{bookings.length}</p></div>
               </div>
             </div>
+
+            <div className="mt-4 bg-slate-50 border border-slate-200 rounded-2xl p-3">
+              <div className="flex flex-wrap gap-2 mb-2 text-xs text-slate-500">
+                {['overview','fleet','bookings','analytics','customers'].map((tab) => (
+                  <button key={tab} onClick={() => setAgencyTab(tab as typeof agencyTab)} className={`px-3 py-1 rounded-full border ${agencyTab === tab ? 'border-primary-500 bg-primary-100 text-primary-700' : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50'}`}>
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                ))}
+              </div>
+              {agencyTab === 'overview' && <p className="text-sm text-slate-600">Overview: Keep your fleet utilization high and respond to confirmed bookings quickly.</p>}
+              {agencyTab === 'fleet' && (
+                <div className="space-y-2 text-sm text-slate-600">
+                  {agencyFleet.map((v) => <div key={v.id} className="flex justify-between"><span>{v.model} ({v.city})</span><span className={`text-xs px-2 rounded-full ${v.status === 'Booked' ? 'bg-amber-100 text-amber-700' : v.status === 'Service' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}`}>{v.status}</span></div>)}
+                </div>
+              )}
+              {agencyTab === 'bookings' && (
+                <div className="mt-2 max-h-44 overflow-y-auto text-xs border border-slate-200 rounded-lg p-2 bg-white">
+                  {displayBookings.slice(0,6).map((b) => <div key={b.id} className="flex justify-between py-1 border-b border-slate-100"><span>{b.userName} • {b.vehicle}</span><span className="font-semibold">₹{b.amount}</span></div>)}
+                </div>
+              )}
+              {agencyTab === 'analytics' && (
+                <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                  <div className="border border-slate-200 rounded-xl p-2 bg-white"><p className="text-slate-500">Conversion</p><p className="font-bold text-slate-800">18%</p></div>
+                  <div className="border border-slate-200 rounded-xl p-2 bg-white"><p className="text-slate-500">Growth</p><p className="font-bold text-slate-800">+12%</p></div>
+                </div>
+              )}
+              {agencyTab === 'customers' && (
+                <div className="mt-2 text-xs text-slate-600">
+                  {agencyCustomers.map((c) => <div key={c.id} className="flex justify-between border-b border-slate-100 py-1"><span>{c.name} ({c.city})</span><span>{c.rides} rides</span></div>)}
+                </div>
+              )}
+            </div>
           </main>
         </div>
       </div>
@@ -129,8 +175,8 @@ const Dashboard = () => {
           <h1 className="mt-2 text-2xl font-black text-slate-900">{user.name}</h1>
           <p className="mt-1 text-slate-500 text-sm">Quick actions and ride controls.</p>
           <div className="mt-4 space-y-2">
-            {[['Browse Vehicles', '/search'], ['Saved Rides', '/search'], ['Bookings', '/dashboard'], ['Feedback', '/dashboard']].map(([label, path]) => (
-              <button key={label} onClick={() => navigate(path)} className="w-full text-left px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 font-semibold text-sm">{label}</button>
+            {[['Overview','overview'], ['Ride History','history'], ['Feedback','feedback'], ['Analytics','analytics']].map(([label, tab]) => (
+              <button key={label} onClick={() => setCustomerTab(tab as typeof customerTab)} className={`w-full text-left px-3 py-2 rounded-xl border ${customerTab === tab ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'} font-semibold text-sm`}>{label}</button>
             ))}
           </div>
           <div className="mt-4 border-t border-slate-200 pt-3 text-xs text-slate-500">
@@ -175,6 +221,23 @@ const Dashboard = () => {
               </div>
               <div className="mt-3 rounded-xl border border-dashed border-slate-300 p-2 bg-white"><p className="text-xs text-slate-500">Tip: Leave feedback in Payment Success to keep your rider score high.</p></div>
             </div>
+          </div>
+
+          <div className="mt-3 bg-slate-50 border border-slate-200 rounded-2xl p-3">
+            {customerTab === 'overview' && <p className="text-sm text-slate-600">Welcome to your personalized ride panel. Track spending, saved routes, and recent travel trends as you book.</p>}
+            {customerTab === 'history' && (
+              <div>
+                <h3 className="font-semibold text-slate-800">Ride history</h3>
+                {displayBookings.map((r) => <div key={r.id} className="mt-2 border-t border-slate-200 pt-2"><p className="font-semibold">{r.vehicle} • ₹{r.amount}</p><p className="text-xs text-slate-500">{r.city} • {r.date} • {r.status}</p></div>)}
+              </div>
+            )}
+            {customerTab === 'feedback' && <p className="text-sm text-slate-600">You have {feedbacks.length} feedback entries. Keep rating drivers for better service recommendations.</p>}
+            {customerTab === 'analytics' && (
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="border border-slate-200 rounded-xl p-2 bg-white"><p className="text-slate-500">Average ride</p><p className="font-bold">₹{(totalSpend / Math.max(1, displayBookings.length)).toFixed(0)}</p></div>
+                <div className="border border-slate-200 rounded-xl p-2 bg-white"><p className="text-slate-500">Top city</p><p className="font-bold">{topCity}</p></div>
+              </div>
+            )}
           </div>
 
           <div className="mt-3 text-right"><Button onClick={() => navigate('/search')}>Continue Booking</Button></div>
