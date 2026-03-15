@@ -17,7 +17,7 @@ const CustomerLogin = lazy(() => import('./pages/CustomerLogin'));
 const AgencyLogin = lazy(() => import('./pages/AgencyLogin'));
 const CustomerSignup = lazy(() => import('./pages/CustomerSignup'));
 const AgencySignup = lazy(() => import('./pages/AgencySignup'));
-
+const RoleSelection = lazy(() => import('./pages/RoleSelection'));
 
 // Navbar Component
 const Navbar = () => {
@@ -35,7 +35,7 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2">
+          <Link to="/home" className="flex items-center gap-2">
             <div className="bg-blue-600 p-2 rounded-xl shadow-sm">
               <Car className="h-6 w-6 text-white" />
             </div>
@@ -158,12 +158,13 @@ function App() {
         <Navbar />
         <Suspense fallback={<div className="p-10 text-center text-blue-600">Loading...</div>}>
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<RoleSelection />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/search" element={<SearchResults />} />
             <Route path="/vehicle/:id" element={<VehicleDetails />} />
-            <Route path="/checkout/:id" element={<PayMock />} />
-            <Route path="/payment-success" element={<PaymentSuccess />} />
-            <Route path="/payment-failure" element={<PaymentFailure />} />
+            <Route path="/checkout/:id" element={<ProtectedRoute><PayMock /></ProtectedRoute>} />
+            <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+            <Route path="/payment-failure" element={<ProtectedRoute><PaymentFailure /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/agency-dashboard" element={<ProtectedRoute><AgencyDashboard /></ProtectedRoute>} />
             <Route path="/login" element={<Login />} />

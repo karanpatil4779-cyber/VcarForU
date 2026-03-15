@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Grid, Map as MapIcon, SlidersHorizontal, Search as SearchIcon } from 'lucide-react';
 import Button from '../components/ui/Button';
 import MapView from '../components/map/MapView';
@@ -7,26 +8,32 @@ import type { FilterState } from '../components/ui/Filters';
 import VehicleCard from '../components/ui/VehicleCard';
 import { vehicles } from '../data/vehicles';
 import { cities } from '../data/cities';
+import { getAllAgencyVehicles } from '../utils/auth';
 import type { Vehicle } from '../types/vehicle';
 
 const SearchResults = () => {
-  const [view, setView] = useState<'grid' | 'map'>('grid');
+  const [view, setView] = useState<'grid' | 'map'>('map');
   const [searchQuery, setSearchQuery] = useState('');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [searchParams] = useSearchParams();
+  const initialCity = searchParams.get('city') || 'all';
   
   const [filters, setFilters] = useState<FilterState>({
     type: 'all',
     fuel: 'all',
     transmission: 'all',
     budget: 'all',
-    city: 'all'
+    city: initialCity,
   });
 
   const cityNames = cities.map(c => c.name);
 
+  const localVehicles = getAllAgencyVehicles();
+  const allVehicles = [...vehicles, ...localVehicles];
+
   // Filter Logic
   const filteredVehicles = useMemo(() => {
-    return vehicles.filter((v: Vehicle) => {
+    return allVehicles.filter((v: Vehicle) => {
       // Search
       const matchesSearch = v.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
                             v.brand.toLowerCase().includes(searchQuery.toLowerCase());

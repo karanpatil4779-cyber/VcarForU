@@ -1,13 +1,17 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShieldCheck, Zap, Bike, Star } from 'lucide-react';
 import Button from '../components/ui/Button';
 import VehicleCard from '../components/ui/VehicleCard';
+import MapView from '../components/map/MapView';
 import { vehicles } from '../data/vehicles';
 import { cities } from '../data/cities';
 import { agencies } from '../data/agencies';
 import type { Vehicle } from '../types/vehicle';
 
 const Home = () => {
+  const navigate = useNavigate();
+  const [selectedCity, setSelectedCity] = useState('Mumbai');
   // Get 3 random popular vehicles for Featured section
   const featuredVehicles = vehicles.filter((v: Vehicle) => v.rating >= 4.7).slice(0, 3);
   const featuredAgencies = agencies.slice(0, 4);
@@ -37,7 +41,11 @@ const Home = () => {
           <div className="glass p-4 rounded-3xl flex flex-col md:flex-row gap-4 max-w-4xl mx-auto shadow-2xl">
             <div className="flex-1 text-slate-900 text-left bg-white/50 rounded-2xl p-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 ml-3">City</label>
-              <select className="w-full bg-transparent p-2 outline-none text-lg font-bold text-slate-900 cursor-pointer appearance-none">
+              <select
+                value={selectedCity}
+                onChange={(e) => setSelectedCity(e.target.value)}
+                className="w-full bg-transparent p-2 outline-none text-lg font-bold text-slate-900 cursor-pointer appearance-none"
+              >
                 <option value="">Where are you going?</option>
                 {cities.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
               </select>
@@ -49,12 +57,16 @@ const Home = () => {
                 className="w-full bg-transparent p-2 outline-none text-lg font-bold text-slate-900 cursor-pointer"
               />
             </div>
-            <Link to="/search" className="md:w-48">
-              <Button size="lg" className="w-full h-full rounded-2xl shadow-primary-200 text-lg">
+            <div className="md:w-48">
+              <Button
+                size="lg"
+                className="w-full h-full rounded-2xl shadow-primary-200 text-lg"
+                onClick={() => navigate(`/search?city=${encodeURIComponent(selectedCity || 'all')}`)}
+              >
                 <Search className="mr-2 h-5 w-5" />
                 Find Rides
               </Button>
-            </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -96,6 +108,32 @@ const Home = () => {
                 </div>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Maharashtra Map Preview */}
+      <section className="py-14 px-4 bg-slate-50 w-full border-t border-slate-100">
+        <div className="max-w-7xl mx-auto">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="font-heading text-4xl font-bold tracking-tight">Map of Maharashtra Hubs</h2>
+              <p className="text-slate-500 mt-1">See active pickup points and vehicle hotspots across your favorite cities.</p>
+            </div>
+            <Link
+              to="/search?city=Mumbai"
+              className="text-primary-600 font-bold text-sm hover:text-primary-500"
+            >
+              Explore Maharashtra →
+            </Link>
+          </div>
+          <div className="rounded-3xl overflow-hidden border border-slate-200 shadow-sm h-[420px]">
+            <MapView
+              vehicles={vehicles.filter(v => ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Aurangabad', 'Thane'].includes(v.city))}
+              cities={cities.filter(c => c.state === 'Maharashtra')}
+              center={[19.7515, 75.7139]}
+              zoom={6.5}
+            />
           </div>
         </div>
       </section>

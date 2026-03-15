@@ -5,7 +5,16 @@ import { Link } from 'react-router-dom';
 
 const Login = () => {
   const [role, setRole] = useState<'customer' | 'agency'>('customer');
+const handleLogin = () => {
 
+if(role === "agency"){
+window.location.href="/agency-dashboard"
+}
+else{
+window.location.href="/dashboard"
+}
+
+}
   return (
     <div className="min-h-[calc(100vh-64px)] flex items-center justify-center p-4 bg-slate-50">
       <div className="max-w-md w-full">
@@ -74,10 +83,13 @@ const Login = () => {
                </div>
             )}
 
-            <Button className="w-full py-4 rounded-2xl text-lg mt-4 shadow-primary-200 h-14">
-              Sign In
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <Button
+               onClick={handleLogin}
+                  className="w-full py-4 rounded-2xl text-lg"
+                  >
+                 Sign In
+                 <ArrowRight className="ml-2 h-5 w-5" />
+                 </Button>
           </form>
 
           {role === 'customer' && (
@@ -102,7 +114,7 @@ const Login = () => {
 
           <div className="px-8 pb-8 mt-4">
              <p className="text-center text-sm text-slate-500 font-medium">
-               Don't have an account? <Link to="/register" className="text-primary-600 font-bold hover:underline">Create one</Link>
+               Don't have an account? <Link to="/customer-signup" className="text-primary-600 font-bold hover:underline">Create one</Link>
              </p>
            </div>
         </div>

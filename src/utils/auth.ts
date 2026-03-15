@@ -1,3 +1,6 @@
+import { vehicles } from '../data/vehicles';
+import type { Vehicle } from '../types/vehicle';
+
 export type Customer = {
   id: string;
   name: string;
@@ -99,4 +102,42 @@ export const findAgency = (email: string, password: string): Agency | null => {
   return existing.find(
     (a) => a.email.toLowerCase() === email.toLowerCase() && a.password === password
   ) ?? null;
+};
+
+// Agency Inventory Helpers
+const AGENCY_VEHICLE_KEY = 'vcarforu_agency_vehicles';
+
+export const getAgencyVehicles = (agencyId: string): Vehicle[] => {
+  if (typeof window === 'undefined') return [];
+  const raw = localStorage.getItem(AGENCY_VEHICLE_KEY);
+  if (!raw) return [];
+  try {
+    const list = JSON.parse(raw) as Vehicle[];
+    return list.filter((v) => v.agencyId === agencyId);
+  } catch {
+    return [];
+  }
+};
+
+export const getAllAgencyVehicles = (): Vehicle[] => {
+  if (typeof window === 'undefined') return [];
+  const raw = localStorage.getItem(AGENCY_VEHICLE_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw) as Vehicle[];
+  } catch {
+    return [];
+  }
+};
+
+export const addAgencyVehicle = (vehicle: Vehicle): { success: boolean; message: string } => {
+  if (typeof window === 'undefined') return { success: false, message: 'Unable to access local storage.' };
+  const current = getAllAgencyVehicles();
+  writeJson(AGENCY_VEHICLE_KEY, [...current, vehicle]);
+  return { success: true, message: 'Vehicle added.' };
+};
+
+export const findVehicleById = (id: string): Vehicle | null => {
+  const localVehicles = getAllAgencyVehicles();
+  return vehicles.find((v) => v.id === id) || localVehicles.find((v) => v.id === id) || null;
 };

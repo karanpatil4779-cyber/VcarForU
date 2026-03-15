@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShieldCheck, CreditCard, Smartphone, Building2, Wallet, Lock } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { vehicles } from '../data/vehicles';
-import type { Vehicle } from '../types/vehicle';
+import { findVehicleById } from '../utils/auth';
+import { useAuth } from '../context/AuthContext';
+import { addBooking } from '../utils/bookings';
 
 const PAYMENT_METHODS = [
   { id: 'upi', label: 'UPI', icon: Smartphone },
@@ -15,9 +16,16 @@ const PAYMENT_METHODS = [
 const PayMock = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const vehicle = vehicles.find((v: Vehicle) => v.id === id);
+  const vehicle = id ? findVehicleById(id) : null;
   const [selectedMethod, setSelectedMethod] = useState('upi');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  const { user } = useAuth();
+
+  if (!user) {
+    navigate('/customer-login');
+    return null;
+  }
 
   if (!vehicle) {
     return (
@@ -38,26 +46,30 @@ const PayMock = () => {
   const handlePayment = () => {
     setIsProcessing(true);
     setTimeout(() => {
-      const success = Math.random() > 0.2;
-      if (success) {
-        const bookingId = 'VCU' + Math.floor(10000 + Math.random() * 90000);
-        localStorage.setItem(
-          'booking',
-          JSON.stringify({
-            bookingId,
-            vehicle: vehicle.name,
-            brand: vehicle.brand,
-            price: total,
-            city: vehicle.city,
-            date: new Date().toLocaleDateString('en-IN'),
-            method: selectedMethod,
-          })
-        );
+      const success = Math.random() > 0.1;
+      if (success && user) {
+        const bookingId = 'VCU' + Math.floor(100000 + Math.random() * 900000);
+        const bookingRecord = {
+          id: bookingId,
+          userId: user.id,
+          userName: user.name,
+          userEmail: user.email,
+          vehicle: vehicle.name,
+          brand: vehicle.brand,
+          city: vehicle.city,
+          date: new Date().toLocaleDateString('en-IN'),
+          amount: total,
+          paymentMethod: selectedMethod,
+          status: 'Confirmed' as const,
+          createdAt: new Date().toISOString(),
+        };
+        addBooking(bookingRecord);
+        localStorage.setItem('last_booking_id', bookingId);
         navigate('/payment-success');
       } else {
         navigate('/payment-failure');
       }
-    }, 2500);
+    }, 2000);
   };
 
   return (

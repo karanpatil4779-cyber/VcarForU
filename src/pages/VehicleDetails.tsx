@@ -1,12 +1,11 @@
 import { useParams, Link } from 'react-router-dom';
 import { ShieldCheck, MapPin, Star, Settings2, Fuel, Users, Gauge, ArrowLeft, Building2 } from 'lucide-react';
 import Button from '../components/ui/Button';
-import { vehicles } from '../data/vehicles';
-import type { Vehicle } from '../types/vehicle';
+import { findVehicleById } from '../utils/auth';
 
 const VehicleDetails = () => {
   const { id } = useParams();
-  const vehicle = vehicles.find((v: Vehicle) => v.id === id);
+  const vehicle = id ? findVehicleById(id) : null;
 
   if (!vehicle) {
     return (
