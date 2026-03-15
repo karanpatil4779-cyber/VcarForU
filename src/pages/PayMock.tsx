@@ -57,6 +57,7 @@ const PayMock = () => {
           vehicle: vehicle.name,
           brand: vehicle.brand,
           city: vehicle.city,
+          agencyId: vehicle.agencyId,
           date: new Date().toLocaleDateString('en-IN'),
           amount: total,
           paymentMethod: selectedMethod,

@@ -14,6 +14,7 @@ export type BookingRecord = {
   amount: number;
   paymentMethod: string;
   status: 'Confirmed' | 'Completed' | 'Cancelled';
+  agencyId?: string;
   createdAt: string;
 };
 
@@ -61,6 +62,10 @@ export const getBookingById = (id: string): BookingRecord | null => {
 
 export const getBookingsByUser = (userId: string): BookingRecord[] => {
   return getBookings().filter((b) => b.userId === userId);
+};
+
+export const getBookingsByAgency = (agencyId: string): BookingRecord[] => {
+  return getBookings().filter((b) => b.agencyId === agencyId);
 };
 
 export const saveFeedback = (feedback: BookingFeedback) => {
