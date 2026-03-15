@@ -7,8 +7,10 @@ import Button from '../components/ui/Button';
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
   const [agencyTab, setAgencyTab] = useState<'overview'|'fleet'|'bookings'|'analytics'|'customers'>('overview');
   const [customerTab, setCustomerTab] = useState<'overview'|'history'|'feedback'|'analytics'>('overview');
+  const [vehicleTypeFilter, setVehicleTypeFilter] = useState<'all'|'car'|'bike'>('all');
 
   if (!user) {
     return (
@@ -57,12 +59,16 @@ const Dashboard = () => {
     ];
 
     return (
-      <div className="min-h-screen bg-slate-100 p-4 md:p-6">
+      <div className={`${darkMode ? 'min-h-screen bg-slate-950 text-slate-100' : 'min-h-screen bg-slate-100'} p-4 md:p-6`}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between mb-3">
+          <div className="text-xs uppercase tracking-[0.2em] text-slate-500">Agency Dashboard</div>
+          <button onClick={() => setDarkMode((prev) => !prev)} className={`${darkMode ? 'bg-slate-800 text-slate-100' : 'bg-white text-slate-700'} px-3 py-1 rounded-full border border-slate-300`}>{darkMode ? '☀ Light' : '🌙 Dark'}</button>
+        </div>
         <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-12 gap-4">
-          <aside className="xl:col-span-3 bg-white rounded-3xl border border-slate-200 p-4">
+          <aside className={`${darkMode ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'} xl:col-span-3 rounded-3xl border p-4`}>
             <p className="text-xs uppercase tracking-[0.2em] font-black text-primary-600">Agency Portal</p>
-            <h1 className="mt-2 text-2xl font-black text-slate-900">{user.name}</h1>
-            <p className="mt-1 text-slate-500 text-sm">Fleet performance, revenue, and customer insights.</p>
+            <h1 className={`mt-2 text-2xl font-black ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>{user.name}</h1>
+            <p className={`mt-1 text-sm ${darkMode ? 'text-slate-300' : 'text-slate-500'}`}>Fleet performance, revenue, and customer insights.</p>
             <div className="mt-4 space-y-2">
               {([['Overview','overview'], ['My Fleet','fleet'], ['Reservations','bookings'], ['Analytics','analytics'], ['Customers','customers']] as const).map(([label, tab]) => (
                 <button key={label} onClick={() => setAgencyTab(tab)} className={`w-full text-left px-3 py-2 rounded-xl border ${agencyTab === tab ? 'border-primary-500 bg-primary-50 text-primary-700' : 'border-slate-200 bg-slate-50 hover:bg-slate-100'} font-semibold text-sm`}>{label}</button>
@@ -74,7 +80,7 @@ const Dashboard = () => {
             </div>
           </aside>
 
-          <main className="xl:col-span-9 bg-white rounded-3xl border border-slate-200 p-4">
+          <main className={`${darkMode ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-900'} xl:col-span-9 rounded-3xl border p-4`}>
             <div className="flex flex-wrap justify-between items-start gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.2em] text-primary-500">Agency Overview</p>
@@ -153,6 +159,14 @@ const Dashboard = () => {
 
   const bookings = getBookingsByUser(user.id);
   const feedbacks = getFeedbackByUser(user.id);
+  const vehicleOptions = [
+    { id: 'c1', name: 'Maruti Swift', type: 'Car', city: 'Mumbai', price: 1200, availability: 'Available' },
+    { id: 'c2', name: 'Honda Shine', type: 'Bike', city: 'Mumbai', price: 350, availability: 'Available' },
+    { id: 'c3', name: 'Toyota Innova', type: 'Car', city: 'Pune', price: 2200, availability: 'Booked' },
+    { id: 'c4', name: 'Royal Enfield', type: 'Bike', city: 'Pune', price: 600, availability: 'Available' },
+    { id: 'c5', name: 'Hyundai i20', type: 'Car', city: 'Nashik', price: 1400, availability: 'Available' },
+  ];
+  const filteredNearby = vehicleTypeFilter === 'all' ? vehicleOptions : vehicleOptions.filter((v) => v.type.toLowerCase() === vehicleTypeFilter);
   const mockCustomerRides = [
     { id: 'C-5001', vehicle: 'Hyundai Creta', city: 'Mumbai', date: '16 Mar 2026', amount: 3600, status: 'Confirmed' },
     { id: 'C-5002', vehicle: 'Maruti Swift', city: 'Pune', date: '15 Mar 2026', amount: 2500, status: 'Completed' },
@@ -168,9 +182,13 @@ const Dashboard = () => {
   const topCity = Object.entries(cityCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'N/A';
 
   return (
-    <div className="min-h-screen bg-slate-100 p-4 md:p-6">
+    <div className={`${darkMode ? 'min-h-screen bg-slate-950 text-slate-100' : 'min-h-screen bg-slate-100 text-slate-900'} p-4 md:p-6`}>
+      <div className="max-w-7xl mx-auto flex justify-between items-center mb-3">
+        <h2 className="text-sm tracking-[0.2em] uppercase text-primary-500">Dashboard</h2>
+        <button onClick={() => setDarkMode((prev) => !prev)} className={`${darkMode ? 'bg-slate-800 text-slate-100' : 'bg-white text-slate-700'} px-3 py-1 rounded-full border border-slate-300`}>{darkMode ? '☀ Light' : '🌙 Dark'}</button>
+      </div>
       <div className="max-w-7xl mx-auto grid grid-cols-1 xl:grid-cols-12 gap-4">
-        <aside className="xl:col-span-3 bg-white rounded-3xl border border-slate-200 p-4">
+        <aside className={`${darkMode ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-900'} xl:col-span-3 rounded-3xl border p-4`}>
           <p className="text-xs uppercase tracking-[0.2em] font-black text-primary-600">Customer Panel</p>
           <h1 className="mt-2 text-2xl font-black text-slate-900">{user.name}</h1>
           <p className="mt-1 text-slate-500 text-sm">Quick actions and ride controls.</p>
@@ -186,7 +204,7 @@ const Dashboard = () => {
           </div>
         </aside>
 
-        <main className="xl:col-span-9 bg-white rounded-3xl border border-slate-200 p-5">
+        <main className={`${darkMode ? 'bg-slate-900 border-slate-700 text-slate-100' : 'bg-white border-slate-200 text-slate-900'} xl:col-span-9 rounded-3xl border p-5`}>
           <div className="flex flex-wrap justify-between items-start gap-3">
             <div>
               <p className="text-xs uppercase tracking-[0.2em] text-primary-500">Customer Dashboard</p>
@@ -220,6 +238,28 @@ const Dashboard = () => {
                 <div className="bg-white border border-slate-200 rounded-xl p-2"><p className="text-xs uppercase text-slate-500">Feedback</p><p className="font-semibold">{feedbacks.length}</p></div>
               </div>
               <div className="mt-3 rounded-xl border border-dashed border-slate-300 p-2 bg-white"><p className="text-xs text-slate-500">Tip: Leave feedback in Payment Success to keep your rider score high.</p></div>
+            </div>
+          </div>
+
+          <div className={`${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'} mt-4 rounded-2xl border p-3`}>
+            <div className="flex justify-between items-center mb-2">
+              <h3 className="font-semibold">Nearby Vehicles (Car/Bike)</h3>
+              <div className="space-x-2 text-xs">
+                {(['all','car','bike'] as const).map((type) => (
+                  <button key={type} onClick={() => setVehicleTypeFilter(type)} className={`rounded-full px-2 py-1 border ${vehicleTypeFilter === type ? 'bg-primary-600 text-white border-primary-600' : 'bg-white text-slate-700 border-slate-300'}`}>
+                    {type === 'all' ? 'All' : type.charAt(0).toUpperCase() + type.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+              {filteredNearby.map((v) => (
+                <div key={v.id} className={`${darkMode ? 'bg-slate-700 border-slate-600 text-slate-100' : 'bg-white border border-slate-200 text-slate-900'} rounded-xl p-2`}>
+                  <div className="flex justify-between"><span className="font-semibold">{v.name}</span><span className={`text-[10px] rounded-full px-2 py-0.5 ${v.availability === 'Available' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>{v.availability}</span></div>
+                  <p className="text-[11px] text-slate-500">{v.type} • {v.city}</p>
+                  <p className="text-xs font-semibold mt-1">₹{v.price}/day</p>
+                </div>
+              ))}
             </div>
           </div>
 
