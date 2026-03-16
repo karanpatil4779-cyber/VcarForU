@@ -84,9 +84,9 @@ export const getFeedbackForBooking = (bookingId: string): BookingFeedback | null
   return current.find((f) => f.bookingId === bookingId) ?? null;
 };
 
-export const getUnreviewedBookings = (userId: string): BookingRecord[] => {
-  const bookings = getBookingsByUser(userId);
-  const feedback = readJson<BookingFeedback[]>(FEEDBACK_KEY) ?? [];
-  const reviewedIds = new Set(feedback.filter((f) => f.userId === userId).map((f) => f.bookingId));
-  return bookings.filter((booking) => !reviewedIds.has(booking.id) && booking.status === 'Confirmed');
+export const cancelBooking = (bookingId: string) => {
+  const current = getBookings();
+  const next = current.map((b) => (b.id === bookingId ? { ...b, status: 'Cancelled' as const } : b));
+  writeJson(BOOKINGS_KEY, next);
+  return next.find((b) => b.id === bookingId) ?? null;
 };

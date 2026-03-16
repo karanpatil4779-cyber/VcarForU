@@ -23,10 +23,10 @@ const Button: React.FC<ButtonProps> = ({
 }) => {
   const variants = {
     primary: 'bg-primary-600 text-white hover:bg-primary-700 shadow-sm',
-    secondary: 'bg-slate-800 text-white hover:bg-slate-900',
-    outline: 'border-2 border-slate-200 bg-transparent hover:bg-slate-50',
-    ghost: 'bg-transparent hover:bg-slate-100',
-    danger: 'bg-red-600 text-white hover:bg-red-700',
+    secondary: 'bg-slate-800 text-white hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600',
+    outline: 'border-2 border-slate-200 bg-transparent hover:bg-slate-50 dark:border-slate-700 dark:hover:bg-slate-800 dark:text-slate-300',
+    ghost: 'bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800 dark:text-slate-300',
+    danger: 'bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600',
   };
 
   const sizes = {
