@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { MessageCircle, X, Send, Bot } from 'lucide-react';
 import { vehicles } from '../../data/vehicles';
 import { agencies } from '../../data/agencies';
 
