@@ -169,10 +169,14 @@ const PayMock = () => {
                   />
                 </div>
                 <div className="text-center py-4">
-                  <div className="w-32 h-32 mx-auto bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300 flex items-center justify-center mb-2">
-                    <Smartphone className="h-10 w-10 text-slate-300" />
+                  <div className="w-32 h-32 mx-auto bg-white rounded-2xl border-2 border-slate-200 flex items-center justify-center mb-3 overflow-hidden shadow-sm">
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`upi://pay?pa=vcarforu@upi&pn=VCarForU&am=${total}&cu=INR`)}`} 
+                      alt="Google Pay QR Code" 
+                      className="w-full h-full object-contain p-2"
+                    />
                   </div>
-                  <p className="font-body text-[13px] text-slate-400 tracking-wide">Or scan QR to pay</p>
+                  <p className="font-body text-[13px] text-slate-600 tracking-wide font-medium">Scan with Google Pay / PhonePe / Paytm</p>
                 </div>
               </div>
             )}
