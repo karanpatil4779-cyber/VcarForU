@@ -60,44 +60,95 @@ export default function ChatBot() {
   const generateResponse = (text: string) => {
     const lowerText = text.toLowerCase();
     
-    if (lowerText.includes('near') || lowerText.includes('nearest') || lowerText.includes('agency')) {
-        let city = '';
-        const cities = ['delhi', 'mumbai', 'bangalore', 'goa', 'roorkee', 'pune', 'hyderabad', 'manali'];
-        for (const c of cities) {
-            if (lowerText.includes(c)) {
-                city = c;
-                break;
-            }
-        }
+    // 1. Help & General FAQ
+    if (lowerText.includes('help') || lowerText.includes('how to book') || lowerText.includes('how do i') || lowerText.match(/what can you do|who are you/)) {
+      return "I can help you with finding car rentals by city, searching for specific car brands (like Tata, Honda, BMW), specific types (SUVs, scooters), getting the best prices, comparing features, or finding nearby agencies. Just ask me!";
+    }
 
-        if (city) {
-            const cityAgencies = agencies.filter(a => a.city.toLowerCase() === city);
-            if (cityAgencies.length > 0) {
-                return `I found agencies near you in ${city}: ${cityAgencies.map(a => a.name).join(', ')}. Which one sounds good?`;
-            } else {
-                return `I couldn't find specific agencies in ${city}.`;
-            }
-        }
+    // 2. Payment & Deposit FAQ
+    if (lowerText.includes('payment') || lowerText.includes('deposit') || lowerText.includes('pay') || lowerText.includes('refund')) {
+        return "We accept all major credit cards, UPI, and net banking. A fully refundable security deposit is standard on all rentals, calculated dynamically based on the vehicle type. The deposit will be returned within 3-5 business days of drop-off.";
+    }
+
+    // Identifiers
+    const cities = ['delhi', 'mumbai', 'bangalore', 'goa', 'roorkee', 'pune', 'hyderabad', 'manali', 'rishikesh'];
+    let foundCity = cities.find(c => lowerText.includes(c));
+
+    const categories = ['suv', 'luxury', 'scooter', 'electric', 'touring-bike', 'sedan', 'hatchback', 'sports-bike', 'commuter-bike'];
+    let foundCategory = categories.find(c => lowerText.includes(c));
+    if (!foundCategory && lowerText.includes('bike')) foundCategory = 'bike';
+    if (!foundCategory && lowerText.includes('car')) foundCategory = 'car';
+
+    const specificCar = vehicles.find(v => lowerText.includes(v.name.toLowerCase()) || (v.brand.toLowerCase() !== 'honda' && v.brand.toLowerCase() !== 'tata' && lowerText.includes(v.brand.toLowerCase())));
+
+    const features = ['sunroof', 'bluetooth', 'airbags', 'gps', 'alloy', 'leather'];
+    let foundFeature = features.find(f => lowerText.includes(f));
+
+    // 3. Price queries (affordable, best price, cheap)
+    if (lowerText.includes('cheap') || lowerText.includes('best price') || lowerText.includes('lowest') || lowerText.includes('affordable') || lowerText.includes('under')) {
+        let pool = vehicles;
+        if (foundCity) pool = pool.filter(v => v.city.toLowerCase() === foundCity);
+        if (foundCategory) pool = pool.filter(v => v.category.includes(foundCategory!) || v.type.includes(foundCategory!));
         
-        return "Where are you located? Please mention your city (e.g. Delhi, Mumbai, Goa, Pune, etc.) so I can find agencies and rentals near you.";
-    }
-    
-    if (lowerText.includes('cheap') || lowerText.includes('best price') || lowerText.includes('lowest')) {
-        const sorted = [...vehicles].sort((a, b) => a.pricePerDay - b.pricePerDay);
+        const sorted = [...pool].sort((a, b) => a.pricePerDay - b.pricePerDay);
+        if (sorted.length === 0) return `I couldn't find any cheap options matching your criteria.`;
         const top3 = sorted.slice(0, 3);
-        const listing = top3.map(v => `${v.name} (₹${v.pricePerDay}/day)`).join(', ');
-        return `Here are some of the best daily rates currently available: ${listing}. Would you like details on any of these?`;
+        const listing = top3.map(v => `${v.name} in ${v.city} (₹${v.pricePerDay}/day)`).join(', ');
+        return `Here are some of the most affordable options I found: ${listing}.`;
     }
 
-    if (lowerText.includes('tharm') || lowerText.includes('thar') || lowerText.includes('details')) {
-        const queryCar = vehicles.find(v => lowerText.includes(v.name.toLowerCase()) || (v.name.toLowerCase().includes('thar') && lowerText.includes('thar')));
-        if (queryCar) {
-            return `Here are the details for the ${queryCar.name}: It costs ₹${queryCar.pricePerDay}/day, has ${queryCar.seats} seats, runs on ${queryCar.fuel}, and includes features like ${queryCar.features.slice(0, 3).join(', ')}.`;
+    // 4. Specific Car Details
+    if ((lowerText.includes('detail') || lowerText.includes('about') || lowerText.includes('tell me') || lowerText.includes('info')) && specificCar) {
+        return `The ${specificCar.name} is a fantastic ${specificCar.category} by ${specificCar.brand}. It runs on ${specificCar.fuel} (${specificCar.transmission}) and gives a mileage of ${specificCar.mileage}. It seats ${specificCar.seats}. Rental starts at ₹${specificCar.pricePerDay}/day (or ₹${specificCar.pricePerHour}/hr). It's available via ${specificCar.agency} in ${specificCar.city}.`;
+    }
+
+    // 5. Search by Feature
+    if (foundFeature) {
+        let pool = vehicles;
+        if (foundCity) pool = pool.filter(v => v.city.toLowerCase() === foundCity);
+        const matching = pool.filter(v => v.features.some(f => f.toLowerCase().includes(foundFeature as string)));
+        if (matching.length > 0) {
+            const sample = matching.slice(0, 3).map(v => `${v.name} (${v.city})`).join(', ');
+            return `I found ${matching.length} vehicles with ${foundFeature}! For example: ${sample}.`;
         }
-        return "Which car would you like details on? I have information on cars like Mahindra Thar, Tata Nexon, Ola S1 Pro, and more.";
     }
 
-    return "I didn't quite catch that. You can ask me to 'find the cheapest cars', 'show nearest agencies in Mumbai', or 'get details on cars'.";
+    // 6. Agency Search by City
+    if (lowerText.includes('agency') || lowerText.includes('agencies') || lowerText.includes('near') || lowerText.includes('company')) {
+        if (foundCity) {
+            const cityAgencies = agencies.filter(a => a.city.toLowerCase() === foundCity);
+            if (cityAgencies.length > 0) {
+                const agencyDetails = cityAgencies.map(a => `${a.name} (Rating: ${a.rating}/5, Contact: ${a.contact})`).join(' | ');
+                return `Top agencies in ${foundCity}: ${agencyDetails}.`;
+            } else {
+                return `Sorry, we don't currently have active agency partnerships mapped in ${foundCity}.`;
+            }
+        }
+        return "Which city are you looking in? (e.g., Delhi, Mumbai, Pune, Goa).";
+    }
+
+    // 7. Contextual Category or City Search
+    if (foundCity || foundCategory) {
+        let pool = vehicles;
+        if (foundCity) pool = pool.filter(v => v.city.toLowerCase() === foundCity);
+        if (foundCategory) pool = pool.filter(v => v.category.includes(foundCategory!) || v.type.includes(foundCategory!));
+
+        if (pool.length > 0) {
+            const startPrice = Math.min(...pool.map(v => v.pricePerDay));
+            const sample = pool.slice(0, 3).map(v => v.name).join(', ');
+            return `I found ${pool.length} ${foundCategory || 'vehicles'} in ${foundCity || 'our network'}, starting from just ₹${startPrice}/day. Some popular ones are: ${sample}.`;
+        } else {
+            return `I couldn't find any ${foundCategory || 'vehicles'} in ${foundCity || 'that location'}. Try adjusting your search!`;
+        }
+    }
+
+    // 8. Fallbacks
+    const explicitFallbackCar = vehicles.find(v => lowerText.includes(v.name.toLowerCase()));
+    if (explicitFallbackCar) {
+         return `We have the ${explicitFallbackCar.brand} ${explicitFallbackCar.name} available! Are you looking for its specifications, price, or availability in a certain city? (e.g., "details about ${explicitFallbackCar.name}")`;
+    }
+
+    return "I am not sure I understand. You can ask me about 'cheap cars in Goa', 'details about Tata Nexon', 'agencies in Mumbai', or 'SUVs with sunroofs'.";
   };
 
   return (
