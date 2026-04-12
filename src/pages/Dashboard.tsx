@@ -61,6 +61,7 @@ const Dashboard = () => {
     const displayBookings = bookings.length ? bookings : mockAgencyBookings;
     const earnings = displayBookings.reduce((sum, b) => sum + b.amount, 0);
     const active = displayBookings.filter((b) => b.status === 'Confirmed').length;
+    // eslint-disable-next-line react-hooks/purity
     const pending = displayBookings.filter((b) => b.status === 'Confirmed' && new Date(b.createdAt) >= new Date(Date.now() - 1000 * 60 * 60 * 24 * 7)).length;
     const uniqueCustomers = new Set(displayBookings.map((b) => b.userId)).size;
     const maintenance = 18000;

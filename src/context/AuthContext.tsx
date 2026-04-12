@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
 import { getCurrentUser, setCurrentUser } from '../utils/auth';
 import type { AuthUser } from '../utils/auth';
 
@@ -11,14 +11,7 @@ type AuthContextValue = {
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-
-  useEffect(() => {
-    const current = getCurrentUser();
-    if (current) {
-      setUser(current);
-    }
-  }, []);
+  const [user, setUser] = useState<AuthUser | null>(() => getCurrentUser());
 
   const login = (nextUser: AuthUser) => {
     setCurrentUser(nextUser);
@@ -35,6 +28,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

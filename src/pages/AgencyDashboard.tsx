@@ -31,6 +31,7 @@ const AgencyDashboard = () => {
 
   useEffect(() => {
     if (!user) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setVehicles(getAgencyVehicles(user.id));
     setBookings(getBookingsByAgency(user.id));
   }, [user]);

@@ -28,8 +28,10 @@ const SearchResults = () => {
 
   const cityNames = cities.map(c => c.name);
 
-  const localVehicles = getAllAgencyVehicles();
-  const allVehicles = [...vehicles, ...localVehicles];
+  const allVehicles = useMemo(() => {
+    const localVehicles = getAllAgencyVehicles();
+    return [...vehicles, ...localVehicles];
+  }, []);
 
   // Filter Logic
   const filteredVehicles = useMemo(() => {
@@ -62,7 +64,7 @@ const SearchResults = () => {
 
       return matchesSearch && matchesCity && matchesType && matchesFuel && matchesTrans && matchesBudget;
     });
-  }, [searchQuery, filters]);
+  }, [searchQuery, filters, allVehicles]);
 
   // Map Center logic based on city selection
   const mapCenter = useMemo((): [number, number] => {

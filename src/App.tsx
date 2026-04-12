@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from 'react
 import { Car, Menu, X } from 'lucide-react';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
+import ChatBot from './components/chat/ChatBot';
 
 const Home = lazy(() => import('./pages/Home'));
 const SearchResults = lazy(() => import('./pages/SearchResults'));
@@ -176,6 +177,7 @@ function App() {
             <Route path="/agency-signup" element={<AgencySignup />} />
           </Routes>
         </Suspense>
+        <ChatBot />
       </div>
     </Router>
   );
