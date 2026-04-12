@@ -118,6 +118,7 @@ interface MapViewProps {
   cities?: City[];
   center?: [number, number];
   zoom?: number;
+  onCitySelect?: (cityName: string) => void;
 }
 
 const isBikeCategory = (category: string) =>
@@ -128,6 +129,7 @@ const MapView: React.FC<MapViewProps> = ({
   cities = [],
   center = [20.5937, 78.9629],
   zoom = 5,
+  onCitySelect,
 }) => {
   const mapRef = React.useRef<L.Map | null>(null);
 
@@ -172,9 +174,16 @@ const MapView: React.FC<MapViewProps> = ({
                 <img src={city.image} alt={city.name} className="w-full h-28 object-cover rounded-xl mb-3" />
                 <h3 className="font-heading font-bold text-lg text-slate-900 tracking-tight mb-0.5">{city.name}</h3>
                 <p className="font-body text-[13px] text-slate-500 tracking-wide mb-2">{city.state}</p>
-                <div className="flex items-center gap-2 text-[11px] font-medium">
-                  <span className="bg-primary-50 text-primary-700 px-2 py-1 rounded-md border border-primary-100">{city.vehicleCount} Vehicles</span>
-                </div>
+                
+                {onCitySelect && (
+                  <Button 
+                    size="sm" 
+                    className="w-full mt-1 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white border-none"
+                    onClick={() => onCitySelect(city.name)}
+                  >
+                    View {city.vehicleCount} Vehicles
+                  </Button>
+                )}
               </div>
             </Popup>
           </Marker>

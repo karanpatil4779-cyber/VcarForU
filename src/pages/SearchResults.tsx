@@ -163,6 +163,7 @@ const SearchResults = () => {
                 cities={filters.city === 'all' ? cities : []} 
                 center={mapCenter}
                 zoom={mapZoom}
+                onCitySelect={(cityName) => setFilters(prev => ({ ...prev, city: cityName }))}
               />
             </div>
           )}
