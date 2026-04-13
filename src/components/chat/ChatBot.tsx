@@ -57,17 +57,44 @@ export default function ChatBot() {
     }, 600);
   };
 
+  const [chatContext, setChatContext] = useState<{ topic?: string, target?: string }>({});
+
   const generateResponse = (text: string) => {
     const lowerText = text.toLowerCase();
     
-    // 1. Help & General FAQ
-    if (lowerText.includes('help') || lowerText.includes('how to book') || lowerText.includes('how do i') || lowerText.match(/what can you do|who are you/)) {
-      return "I can help you with finding car rentals by city, searching for specific car brands (like Tata, Honda, BMW), specific types (SUVs, scooters), getting the best prices, comparing features, or finding nearby agencies. Just ask me!";
+    // 0. Greetings
+    if (lowerText.match(/^(hi|hello|hey|greetings|good morning|good evening|good afternoon)\b/)) {
+        return "Hello! How can I assist you today? You can ask me to compare cars, find the nearest agencies, or check pricing and availability.";
+    }
+
+    // 1. Policies & Documents FAQ
+    if (lowerText.includes('document') || lowerText.includes('license') || lowerText.includes('id proof')) {
+        return "To rent a vehicle, you will need a valid Driving License (at least 1 year old) and an original ID proof (Aadhar Card, Passport, or Voter ID).";
+    }
+    if (lowerText.includes('age') && (lowerText.includes('limit') || lowerText.includes('minimum'))) {
+        return "The minimum age limit to rent our cars is 21 years, and 18 years for scooters. For luxury cars, the minimum age is 25 years.";
+    }
+    if (lowerText.includes('cancel') || lowerText.includes('refund policy')) {
+        return "Cancellation Policy: Free cancellation up to 24 hours before pickup. Cancellations within 24 hours incur a 50% charge of the first day's rental. The security deposit is always fully refunded.";
+    }
+    if (lowerText.includes('insurance') || lowerText.includes('accident')) {
+        return "All our rentals come with standard comprehensive insurance. In case of damage, your liability is limited to the security deposit amount (unless under the influence or negligence).";
     }
 
     // 2. Payment & Deposit FAQ
     if (lowerText.includes('payment') || lowerText.includes('deposit') || lowerText.includes('pay') || lowerText.includes('refund')) {
         return "We accept all major credit cards, UPI, and net banking. A fully refundable security deposit is standard on all rentals, calculated dynamically based on the vehicle type. The deposit will be returned within 3-5 business days of drop-off.";
+    }
+
+    // 3. Comparisons (e.g., "compare thar and nexon")
+    if (lowerText.includes('compare')) {
+        const foundVehicles = vehicles.filter(v => lowerText.includes(v.name.toLowerCase()));
+        if (foundVehicles.length >= 2) {
+            const v1 = foundVehicles[0];
+            const v2 = foundVehicles[1];
+            return `Comparison:\n- ${v1.name}: ₹${v1.pricePerDay}/day, ${v1.fuel}, ${v1.transmission}, ${v1.seats} seats.\n- ${v2.name}: ₹${v2.pricePerDay}/day, ${v2.fuel}, ${v2.transmission}, ${v2.seats} seats. \n\nBoth are great options! Which one do you prefer?`;
+        }
+        return "To compare, please mention the specific names of at least two vehicles (e.g., 'Compare Thar and Nexon').";
     }
 
     // Identifiers
@@ -83,26 +110,38 @@ export default function ChatBot() {
 
     const features = ['sunroof', 'bluetooth', 'airbags', 'gps', 'alloy', 'leather'];
     let foundFeature = features.find(f => lowerText.includes(f));
+    let foundTransmission = ['automatic', 'manual', 'cvt'].find(t => lowerText.includes(t));
 
-    // 3. Price queries (affordable, best price, cheap)
+    // 4. Price queries (affordable, best price, cheap)
     if (lowerText.includes('cheap') || lowerText.includes('best price') || lowerText.includes('lowest') || lowerText.includes('affordable') || lowerText.includes('under')) {
         let pool = vehicles;
         if (foundCity) pool = pool.filter(v => v.city.toLowerCase() === foundCity);
         if (foundCategory) pool = pool.filter(v => v.category.includes(foundCategory!) || v.type.includes(foundCategory!));
+        if (foundTransmission) pool = pool.filter(v => v.transmission.toLowerCase() === foundTransmission);
         
         const sorted = [...pool].sort((a, b) => a.pricePerDay - b.pricePerDay);
         if (sorted.length === 0) return `I couldn't find any cheap options matching your criteria.`;
         const top3 = sorted.slice(0, 3);
         const listing = top3.map(v => `${v.name} in ${v.city} (₹${v.pricePerDay}/day)`).join(', ');
-        return `Here are some of the most affordable options I found: ${listing}.`;
+        return `Here are some of the most affordable ${foundTransmission || ''} options I found: ${listing}.`;
     }
 
-    // 4. Specific Car Details
+    // 5. Specific Car Details
     if ((lowerText.includes('detail') || lowerText.includes('about') || lowerText.includes('tell me') || lowerText.includes('info')) && specificCar) {
-        return `The ${specificCar.name} is a fantastic ${specificCar.category} by ${specificCar.brand}. It runs on ${specificCar.fuel} (${specificCar.transmission}) and gives a mileage of ${specificCar.mileage}. It seats ${specificCar.seats}. Rental starts at ₹${specificCar.pricePerDay}/day (or ₹${specificCar.pricePerHour}/hr). It's available via ${specificCar.agency} in ${specificCar.city}.`;
+        setChatContext({ topic: 'vehicle', target: specificCar.name });
+        return `The ${specificCar.name} is a fantastic ${specificCar.category} by ${specificCar.brand}. It runs on ${specificCar.fuel} (${specificCar.transmission}) and gives a mileage of ${specificCar.mileage}. It seats ${specificCar.seats}. Rental starts at ₹${specificCar.pricePerDay}/day. It includes ${specificCar.features.slice(0, 3).join(', ')}.`;
     }
 
-    // 5. Search by Feature
+    // Contextual Follow-up Memory
+    if (chatContext.topic === 'vehicle' && (lowerText.includes('where') || lowerText.includes('location') || lowerText.includes('book'))) {
+        const memoryCar = vehicles.find(v => v.name === chatContext.target);
+        if (memoryCar) {
+             setChatContext({});
+             return `The ${memoryCar.name} you asked about earlier is available via ${memoryCar.agency} in ${memoryCar.city}. You can find it in our main search page to book it instantly!`;
+        }
+    }
+
+    // 6. Search by Feature
     if (foundFeature) {
         let pool = vehicles;
         if (foundCity) pool = pool.filter(v => v.city.toLowerCase() === foundCity);
@@ -113,12 +152,12 @@ export default function ChatBot() {
         }
     }
 
-    // 6. Agency Search by City
+    // 7. Agency Search by City
     if (lowerText.includes('agency') || lowerText.includes('agencies') || lowerText.includes('near') || lowerText.includes('company')) {
         if (foundCity) {
             const cityAgencies = agencies.filter(a => a.city.toLowerCase() === foundCity);
             if (cityAgencies.length > 0) {
-                const agencyDetails = cityAgencies.map(a => `${a.name} (Rating: ${a.rating}/5, Contact: ${a.contact})`).join(' | ');
+                const agencyDetails = cityAgencies.map(a => `${a.name} (${a.rating}/5 ⭐)`).join(' | ');
                 return `Top agencies in ${foundCity}: ${agencyDetails}.`;
             } else {
                 return `Sorry, we don't currently have active agency partnerships mapped in ${foundCity}.`;
@@ -127,28 +166,34 @@ export default function ChatBot() {
         return "Which city are you looking in? (e.g., Delhi, Mumbai, Pune, Goa).";
     }
 
-    // 7. Contextual Category or City Search
+    // 8. Contextual Category or City Search
     if (foundCity || foundCategory) {
         let pool = vehicles;
         if (foundCity) pool = pool.filter(v => v.city.toLowerCase() === foundCity);
         if (foundCategory) pool = pool.filter(v => v.category.includes(foundCategory!) || v.type.includes(foundCategory!));
+        if (foundTransmission) pool = pool.filter(v => v.transmission.toLowerCase() === foundTransmission);
 
         if (pool.length > 0) {
             const startPrice = Math.min(...pool.map(v => v.pricePerDay));
             const sample = pool.slice(0, 3).map(v => v.name).join(', ');
-            return `I found ${pool.length} ${foundCategory || 'vehicles'} in ${foundCity || 'our network'}, starting from just ₹${startPrice}/day. Some popular ones are: ${sample}.`;
+            return `I found ${pool.length} ${foundTransmission || ''} ${foundCategory || 'vehicles'} in ${foundCity || 'our network'}, starting from just ₹${startPrice}/day. Some popular ones are: ${sample}.`;
         } else {
-            return `I couldn't find any ${foundCategory || 'vehicles'} in ${foundCity || 'that location'}. Try adjusting your search!`;
+            return `I couldn't find any matches. Try adjusting your search!`;
         }
     }
 
-    // 8. Fallbacks
-    const explicitFallbackCar = vehicles.find(v => lowerText.includes(v.name.toLowerCase()));
-    if (explicitFallbackCar) {
-         return `We have the ${explicitFallbackCar.brand} ${explicitFallbackCar.name} available! Are you looking for its specifications, price, or availability in a certain city? (e.g., "details about ${explicitFallbackCar.name}")`;
+    // 9. Help Command
+    if (lowerText.includes('help') || lowerText.includes('how to book') || lowerText.includes('how do i') || lowerText.match(/what can you do|who are you/)) {
+      return "I can help you with finding car rentals by city, searching for specific car brands (like Tata, Honda, BMW), specific types (SUVs, scooters), getting the best prices, comparing features, checking policies, or finding nearby agencies. Just ask me!";
     }
 
-    return "I am not sure I understand. You can ask me about 'cheap cars in Goa', 'details about Tata Nexon', 'agencies in Mumbai', or 'SUVs with sunroofs'.";
+    // Fallback Explicit
+    if (specificCar) {
+         setChatContext({ topic: 'vehicle', target: specificCar.name });
+         return `We have the ${specificCar.brand} ${specificCar.name} available! Are you looking for its specifications, price, or availability in a certain city?`;
+    }
+
+    return "I'm not quite sure I understand. You can ask me to 'compare Nexon and Thar', 'check age limit', 'affordable automatic cars in Goa', or 'details on Ather'.";
   };
 
   return (
