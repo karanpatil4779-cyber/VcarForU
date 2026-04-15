@@ -42,6 +42,9 @@ export interface Agency {
   id: string;
   name: string;
   city: string;
+  location: string;
+  lat: number;
+  lng: number;
   rating: number;
   fleetSize: number;
   contact: string;
