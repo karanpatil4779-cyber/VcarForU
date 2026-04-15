@@ -14,7 +14,7 @@ export const cities: City[] = [
     state: 'Maharashtra',
     lat: 19.0760,
     lng: 72.8777,
-    vehicleCount: 28,
+    vehicleCount: 260,
     image: 'https://images.unsplash.com/photo-1570168007204-dfb528c6958f?auto=format&fit=crop&q=80&w=600',
   },
   {
