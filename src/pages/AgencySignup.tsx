@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Building2 } from 'lucide-react';
-import { registerAgency } from '../utils/auth';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const AgencySignup = () => {
   const navigate = useNavigate();
@@ -18,8 +19,9 @@ const AgencySignup = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -33,25 +35,33 @@ const AgencySignup = () => {
       return;
     }
 
-    const result = registerAgency({
-      id: `${Date.now()}`,
-      agencyName: formData.agencyName.trim(),
-      ownerName: formData.ownerName.trim(),
-      email: formData.email.trim().toLowerCase(),
-      phone: formData.phone.trim(),
-      address: formData.address.trim(),
-      registrationNumber: formData.registrationNumber.trim(),
-      gstNumber: formData.gstNumber.trim(),
-      password: formData.password
-    });
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/auth?action=register&type=agency`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.agencyName.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim(),
+          city: formData.address.trim(),
+          password: formData.password
+        })
+      });
 
-    if (!result.success) {
-      setError(result.message);
-      return;
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccess('Agency registered successfully. Redirecting to login...');
+        setTimeout(() => navigate('/agency-login'), 1200);
+      } else {
+        setError(data.message || data.error || 'Registration failed');
+      }
+    } catch (err) {
+      setError('Failed to connect to server. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-
-    setSuccess('Agency registered successfully. Redirecting to login...');
-    setTimeout(() => navigate('/agency-login'), 1200);
   };
 
   return (
@@ -173,8 +183,8 @@ const AgencySignup = () => {
           {error && <p className="text-sm text-red-600">{error}</p>}
           {success && <p className="text-sm text-green-600">{success}</p>}
 
-          <button className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition">
-            Register Agency
+          <button type="submit" disabled={isLoading} className="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700 transition disabled:opacity-50">
+            {isLoading ? 'Registering...' : 'Register Agency'}
           </button>
         </form>
 

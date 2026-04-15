@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Phone } from 'lucide-react';
-import { registerCustomer } from '../utils/auth';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const CustomerSignup = () => {
   const navigate = useNavigate();
@@ -14,8 +15,9 @@ const CustomerSignup = () => {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -30,21 +32,32 @@ const CustomerSignup = () => {
       return;
     }
 
-    const result = registerCustomer({
-      id: `${Date.now()}`,
-      name: formData.name.trim(),
-      email: formData.email.trim().toLowerCase(),
-      phone: formData.phone.trim(),
-      password: formData.password
-    });
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/auth?action=register&type=customer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
+          phone: formData.phone.trim(),
+          password: formData.password
+        })
+      });
 
-    if (!result.success) {
-      setError(result.message);
-      return;
+      const data = await response.json();
+
+      if (data.success) {
+        setSuccess('Account created successfully. Redirecting to login...');
+        setTimeout(() => navigate('/customer-login'), 1200);
+      } else {
+        setError(data.message || data.error || 'Registration failed');
+      }
+    } catch (err) {
+      setError('Failed to connect to server. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-
-    setSuccess('Account created successfully. Redirecting to login...');
-    setTimeout(() => navigate('/customer-login'), 1200);
   };
 
   return (
@@ -129,8 +142,8 @@ const CustomerSignup = () => {
           {error && <p className="text-sm text-red-600">{error}</p>}
           {success && <p className="text-sm text-green-600">{success}</p>}
 
-          <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-            Create Account
+          <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50">
+            {isLoading ? 'Creating Account...' : 'Create Account'}
           </button>
         </form>
 

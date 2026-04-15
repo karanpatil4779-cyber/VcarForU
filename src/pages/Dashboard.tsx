@@ -335,7 +335,7 @@ const Dashboard = () => {
               <h2 className={`text-3xl font-black ${darkMode ? 'text-slate-100' : 'text-slate-900'}`}>Hello, {user.name}</h2>
               <p className={`${darkMode ? 'text-slate-400' : 'text-slate-500'} mt-1`}>Ride history, spending and analytics at a glance.</p>
             </div>
-            <Button onClick={() => navigate('/search')} variant={darkMode ? 'secondary' : 'primary'}>Continue Booking</Button>
+            <Button onClick={() => navigate('/search?step=vehicles')} variant={darkMode ? 'secondary' : 'primary'}>Continue Booking</Button>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-4">
@@ -544,7 +544,7 @@ const Dashboard = () => {
           </div>
 
           <div className="mt-4 text-right">
-            <Button onClick={() => navigate('/search')} variant="primary">
+            <Button onClick={() => navigate('/search?step=vehicles')} variant="primary">
               Continue Booking
             </Button>
           </div>

@@ -6,6 +6,8 @@ import { findVehicleById } from '../utils/auth';
 import { useAuth } from '../context/AuthContext';
 import { addBooking } from '../utils/bookings';
 
+const API_URL = import.meta.env.VITE_API_URL || '';
+
 const PAYMENT_METHODS = [
   { id: 'upi', label: 'UPI', icon: Smartphone },
   { id: 'card', label: 'Card', icon: CreditCard },
@@ -43,34 +45,59 @@ const PayMock = () => {
   const gst = Math.floor(rental * 0.18);
   const total = rental + deposit + gst;
 
-  const handlePayment = () => {
+  const handlePayment = async () => {
     setIsProcessing(true);
-    setTimeout(() => {
-      const success = Math.random() > 0.1;
-      if (success && user) {
-        const bookingId = 'VCU' + Math.floor(100000 + Math.random() * 900000);
-        const bookingRecord = {
-          id: bookingId,
+    
+    if (!user || !vehicle) {
+      setIsProcessing(false);
+      navigate('/customer-login');
+      return;
+    }
+
+    try {
+      const bookingId = 'VCU' + Math.floor(100000 + Math.random() * 900000);
+      const bookingRecord = {
+        id: bookingId,
+        userId: user.id,
+        userName: user.name,
+        userEmail: user.email,
+        vehicle: vehicle.name,
+        brand: vehicle.brand,
+        city: vehicle.city,
+        agencyId: vehicle.agencyId,
+        date: new Date().toLocaleDateString('en-IN'),
+        amount: total,
+        paymentMethod: selectedMethod,
+        status: 'Confirmed' as const,
+        createdAt: new Date().toISOString(),
+      };
+      
+      await fetch(`${API_URL}/api/bookings?action=create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           userId: user.id,
-          userName: user.name,
-          userEmail: user.email,
-          vehicle: vehicle.name,
-          brand: vehicle.brand,
-          city: vehicle.city,
           agencyId: vehicle.agencyId,
-          date: new Date().toLocaleDateString('en-IN'),
+          vehicleId: vehicle.id,
           amount: total,
           paymentMethod: selectedMethod,
-          status: 'Confirmed' as const,
-          createdAt: new Date().toISOString(),
-        };
-        addBooking(bookingRecord);
-        localStorage.setItem('last_booking_id', bookingId);
-        navigate('/payment-success');
-      } else {
-        navigate('/payment-failure');
-      }
-    }, 2000);
+          userName: user.name,
+          userEmail: user.email,
+          vehicleName: vehicle.name,
+          brand: vehicle.brand,
+          city: vehicle.city
+        })
+      });
+
+      addBooking(bookingRecord);
+      localStorage.setItem('last_booking_id', bookingId);
+      navigate('/payment-success');
+    } catch (err) {
+      console.error('Booking error:', err);
+      navigate('/payment-failure');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (

@@ -63,6 +63,11 @@ CREATE TABLE IF NOT EXISTS bookings (
     payment_method VARCHAR(30) NOT NULL,
     status VARCHAR(20) DEFAULT 'Confirmed',
     booking_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_name VARCHAR(100),
+    user_email VARCHAR(100),
+    vehicle_name VARCHAR(100),
+    brand VARCHAR(50),
+    city VARCHAR(50),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (agency_id) REFERENCES agencies(id) ON DELETE CASCADE,
     FOREIGN KEY (vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE

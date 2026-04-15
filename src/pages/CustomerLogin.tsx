@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
-import { findCustomer } from '../utils/auth';
 import { useAuth } from '../context/AuthContext';
+
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const CustomerLogin = () => {
   const navigate = useNavigate();
@@ -10,19 +11,33 @@ const CustomerLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
-    const user = findCustomer(email.trim().toLowerCase(), password);
-    if (!user) {
-      setError('Invalid credentials. Please check email/password.');
-      return;
+    try {
+      const response = await fetch(`${API_URL}/api/auth?action=login&type=customer`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email.trim().toLowerCase(), password })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        login({ id: data.user.id, role: 'customer', email: data.user.email, name: data.user.name });
+        navigate('/dashboard');
+      } else {
+        setError('Invalid credentials. Please check email/password.');
+      }
+    } catch (err) {
+      setError('Failed to connect to server. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-
-    login({ id: user.id, role: 'customer', email: user.email, name: user.name });
-    navigate('/dashboard');
   };
 
   return (
@@ -66,8 +81,8 @@ const CustomerLogin = () => {
 
           {error && <p className="text-red-600 text-sm">{error}</p>}
 
-          <button className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition">
-            Login
+          <button type="submit" disabled={isLoading} className="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50">
+            {isLoading ? 'Logging in...' : 'Login'}
           </button>
         </form>
 
