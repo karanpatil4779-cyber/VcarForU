@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { MessageCircle, X, Send, Bot, Car, MapPin, Phone, Shield, CreditCard, Clock, FileText, Star, Headphones, Wrench, Clock3, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { v4 as uuidv4 } from 'uuid';
+import { MessageCircle, X, Send, Bot, FileText } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { vehicles } from '../../data/vehicles';
 import { agencies } from '../../data/agencies';
@@ -38,11 +39,22 @@ const FAQS: FAQ[] = [
   { keywords: ['fuel', 'petrol', ' diesel'], answer: 'Vehicles are delivered with a full tank. Return with same fuel level to avoid refueling charges. We do free fuel top-up on premium packages!' },
   { keywords: ['unlimited', 'km', 'kilometer'], answer: 'Our STANDARD package includes 100km/day. UPGRADE to UNLIMITED for just ₹200/day more - drive as much as you want!' },
   { keywords: ['offer', 'discount', 'coupon', 'promo'], answer: 'Check our Offers page for latest deals! Use FIRST50 for 50% off your first booking. Refer a friend and earn ₹500!' },
-  { keywords: ['compare', 'difference', 'car vs bike'], answer: 'Cars: Best for families, AC, luggage, comfort. Bikes: Great for solo travel, maneuver in traffic, fuel efficient. Choose based on your needs!' },
+  { keywords: ['compare', 'difference', 'car vs bike'], answer: 'Cars: Best for families, AC, luggage, comfort. Bikes: Best for solo travel, maneuver in traffic, fuel efficient. Choose based on your needs!' },
   { keywords: ['roadside', 'assistance', 'breakdown'], answer: '24/7 Roadside Assistance included! Call the hotline number in your booking confirmation. We\'ll dispatch help within 30 mins in cities.' },
   { keywords: ['long term', 'monthly', 'rental'], answer: 'Monthly rentals available! Get 25-40% discount on long-term bookings. Contact our fleet team for custom monthly packages. Great for business travelers!' },
   { keywords: ['corporate', 'business', 'company'], answer: 'Corporate accounts available with priority support, dedicated fleet manager, and invoicing. Apply on our corporate page!' },
 ];
+
+const pickupResponses = [
+  "Interesting! I can help you find a vehicle, check pricing, or learn about our policies. What would you like?",
+  "Got it! Would you like to search for vehicles or get more information?",
+  "Sure thing! Let me know what you're looking for - I can help with booking, pricing, or any questions!",
+];
+
+function getRandomFallback(): string {
+  const index = Math.floor(Math.random() * pickupResponses.length);
+  return pickupResponses[index];
+}
 
 export default function ChatBot() {
   const navigate = useNavigate();
@@ -52,21 +64,20 @@ export default function ChatBot() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
-      text: "Namaste! I'm VCarForU Assistant 🤖\n\nI can help you with:\n🚗 Finding the perfect vehicle\n💰 Best prices & offers\n📋 Documents & policies\n🔧 Support & assistance\n\nWhat would you like to know?",
+      text: "Namaste! I'm VCarForU Assistant\n\nI can help you with:\nFinding the perfect vehicle\nBest prices & offers\nDocuments & policies\nSupport & assistance\n\nWhat would you like to know?",
       sender: 'bot',
       timestamp: new Date(),
       options: [
-        { label: '🔍 Find a Vehicle', value: 'find_car', action: 'set_intent' },
-        { label: '📋 Documents Needed', value: 'document', action: 'reply' },
-        { label: '💰 Pricing & Offers', value: 'price', action: 'reply' },
-        { label: '❓ Help & Support', value: 'help', action: 'reply' },
+        { label: 'Find a Vehicle', value: 'find_car', action: 'set_intent' },
+        { label: 'Documents Needed', value: 'document', action: 'reply' },
+        { label: 'Pricing & Offers', value: 'price', action: 'reply' },
+        { label: 'Help & Support', value: 'help', action: 'reply' },
       ],
       quickReplies: ['Find a Car', 'Pricing', 'Cancel Policy', 'Contact Support'],
     },
   ]);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const [quickReplyShow, setQuickReplyShow] = useState<Map<string, boolean>>(new Map());
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -76,10 +87,10 @@ export default function ChatBot() {
     scrollToBottom();
   }, [messages]);
 
-  const processBotResponse = (text: string, value?: string, action?: string, data?: Record<string, unknown>) => {
-    const response = generateResponse(text, value, action, data);
+  const processBotResponse = (text: string, value?: string, action?: string) => {
+    const response = generateResponse(text, value, action);
     const botMsg: Message = {
-      id: (Date.now() + 1).toString(),
+      id: uuidv4(),
       text: response.text,
       sender: 'bot',
       timestamp: new Date(),
@@ -93,7 +104,7 @@ export default function ChatBot() {
     if (!input.trim()) return;
 
     const userMsg: Message = {
-      id: Date.now().toString(),
+      id: uuidv4(),
       text: input,
       sender: 'user',
       timestamp: new Date(),
@@ -127,7 +138,7 @@ export default function ChatBot() {
     }
 
     const userMsg: Message = {
-      id: Date.now().toString(),
+      id: uuidv4(),
       text: opt.label,
       sender: 'user',
       timestamp: new Date(),
@@ -135,7 +146,7 @@ export default function ChatBot() {
     setMessages(prev => [...prev, userMsg]);
 
     setTimeout(() => {
-      processBotResponse(opt.label, opt.value, opt.action, opt.data as Record<string, unknown>);
+      processBotResponse(opt.label, opt.value, opt.action);
     }, 400);
   };
 
@@ -144,59 +155,54 @@ export default function ChatBot() {
     handleSend();
   };
 
-  const generateResponse = (
+  const generateResponse = useCallback((
     text: string,
     value?: string,
-    action?: string,
-    data?: Record<string, unknown>
+    action?: string
   ): { text: string; options?: MessageOption[]; quickReplies?: string[] } => {
     const lowerText = text.toLowerCase();
 
-    // GREETING
-    if (lowerText.match(/^(hi|hello|hey|namaste|hola|hey|good|morning|evening|night)/)) {
+    if (lowerText.match(/^(hi|hello|hey|namaste|hola|good|morning|evening|night)/)) {
       return {
-        text: "Namaste! 👋 Welcome to VCarForU!\n\nI can help you find the best vehicle at great prices. What would you like to do today?",
+        text: "Namaste! Welcome to VCarForU!\n\nI can help you find the best vehicle at great prices. What would you like to do today?",
         options: [
-          { label: '🔍 Find Vehicle', value: 'find_car', action: 'set_intent' },
-          { label: '💰 Get Quote', value: 'quote', action: 'set_intent' },
-          { label: '❓ Ask Question', value: 'help', action: 'reply' },
+          { label: 'Find Vehicle', value: 'find_car', action: 'set_intent' },
+          { label: 'Get Quote', value: 'quote', action: 'set_intent' },
+          { label: 'Ask Question', value: 'help', action: 'reply' },
         ],
         quickReplies: ['Find Car', 'Pricing', 'Book Now'],
       };
     }
 
-    // FIND VEHICLE INTENT - City Selection
     if (action === 'set_intent' && value === 'find_car') {
       const uniqueCities = Array.from(new Set(agencies.map(a => a.city)));
       setChatContext({ step: 'select_city' });
       return {
-        text: "Great choice! 🚗\n\nLet's find your perfect ride.\n\nWhich city are you in?",
+        text: "Great choice!\n\nLet's find your perfect ride.\n\nWhich city are you in?",
         options: uniqueCities.map(c => ({ label: c, value: c, action: 'set_intent' })),
         quickReplies: uniqueCities.slice(0, 4),
       };
     }
 
-    // City Selected - Show nearby agencies
     if (chatContext.step === 'select_city' && action === 'set_intent') {
       const city = value || '';
       const cityAgencies = agencies.filter(a => a.city === city);
       setChatContext({ step: 'select_agency', city });
       return {
-        text: `Found ${cityAgencies.length} trusted agencies in ${city}! 🏪\n\nSelect an agency to see their vehicles:`,
+        text: `Found ${cityAgencies.length} trusted agencies in ${city}!\n\nSelect an agency to see their vehicles:`,
         options: [
           ...cityAgencies.slice(0, 5).map(a => ({
-            label: `${a.name} ⭐${a.rating}`,
+            label: `${a.name} ${a.rating}`,
             value: a.name,
-            action: 'set_intent',
+            action: 'set_intent' as const,
             data: { city },
           })),
-          { label: '📍 Show on Map', value: city, action: 'show_location', data: { city } },
+          { label: 'Show on Map', value: city, action: 'show_location' as const, data: { city } },
         ],
         quickReplies: ['Best Rated', 'Cheapest', 'Show Map'],
       };
     }
 
-    // Agency Selected - Show Vehicles
     if (chatContext.step === 'select_agency' && action === 'set_intent') {
       const agencyName = value || '';
       const agencyVehicles = vehicles.filter(v => v.agency === agencyName && v.city === chatContext.city);
@@ -204,21 +210,21 @@ export default function ChatBot() {
 
       if (agencyVehicles.length === 0) {
         return {
-          text: "Sorry! This agency currently has no vehicles in stock. 😔\n\nWould you like to see other options?",
+          text: "Sorry! This agency currently has no vehicles in stock.\n\nWould you like to see other options?",
           options: [
-            { label: '🔄 Show All in City', value: 'find_car', action: 'set_intent' },
-            { label: '🏠 Start Over', value: 'restart', action: 'set_intent' },
+            { label: 'Show All in City', value: 'find_car', action: 'set_intent' as const },
+            { label: 'Start Over', value: 'restart', action: 'set_intent' as const },
           ],
         };
       }
 
       return {
-        text: `Excellent! ${agencyName} has ${agencyVehicles.length} vehicles available. 🚗\n\nSelect one to view details and book:`,
+        text: `Excellent! ${agencyName} has ${agencyVehicles.length} vehicles available.\n\nSelect one to view details and book:`,
         options: [
           ...agencyVehicles.slice(0, 6).map(v => ({
             label: `${v.name} - ₹${v.pricePerDay}/day`,
             value: `/vehicle/${v.id}`,
-            action: 'navigate',
+            action: 'navigate' as const,
             data: { vehicle: v.name },
           })),
         ],
@@ -226,60 +232,56 @@ export default function ChatBot() {
       };
     }
 
-    // HELP & SUPPORT CATEGORIES
     if (action === 'reply' && value === 'help') {
       return {
-        text: "Here's how I can assist you: 📞\n\n1. Booking issues & modifications\n2. Cancellation & refunds\n3. Document verification\n4. Payment problems\n5. Roadside assistance\n\nWhat type of help do you need?",
+        text: "Here's how I can assist you:\n\n1. Booking issues & modifications\n2. Cancellation & refunds\n3. Document verification\n4. Payment problems\n5. Roadside assistance\n\nWhat type of help do you need?",
         options: [
-          { label: '📞 Call Support', value: 'call', action: 'reply' },
-          { label: '💬 Live Chat', value: 'chat', action: 'reply' },
-          { label: '📧 Email Support', value: 'email', action: 'reply' },
+          { label: 'Call Support', value: 'call', action: 'reply' },
+          { label: 'Live Chat', value: 'chat', action: 'reply' },
+          { label: 'Email Support', value: 'email', action: 'reply' },
         ],
         quickReplies: ['Call Now', 'Email', 'Cancel Booking'],
       };
     }
 
-    // FAQ Matching
     for (const faq of FAQS) {
       if (faq.keywords.some(k => lowerText.includes(k))) {
         return {
           text: faq.answer,
           options: [
-            { label: '🔍 Book Now', value: 'find_car', action: 'set_intent' },
-            { label: '❓ More Help', value: 'help', action: 'reply' },
+            { label: 'Book Now', value: 'find_car', action: 'set_intent' },
+            { label: 'More Help', value: 'help', action: 'reply' },
           ],
           quickReplies: ['Book Vehicle', 'Talk to Agent'],
         };
       }
     }
 
-    // LOCATION QUERIES
-    if (lowerText.includes('location') || lowerText.includes('map') || lowerText.includes('near') || lowerText.includes('nearby')) {
+    if (lowerText.includes('location') || lowerText.includes('map') || lowerText.includes('near')) {
       const uniqueCities = Array.from(new Set(agencies.map(a => a.city)));
       const mentionedCity = uniqueCities.find(c => lowerText.includes(c.toLowerCase()));
       
       if (mentionedCity) {
         return {
-          text: `Here are agencies in ${mentionedCity}! 📍`,
+          text: `Here are agencies in ${mentionedCity}!`,
           options: [
-            { label: '📍 Show on Map', value: mentionedCity, action: 'show_location', data: { city: mentionedCity } },
-            { label: '🔍 See Vehicles', value: mentionedCity, action: 'filter', data: { city: mentionedCity } },
+            { label: 'Show on Map', value: mentionedCity, action: 'show_location', data: { city: mentionedCity } },
+            { label: 'See Vehicles', value: mentionedCity, action: 'filter', data: { city: mentionedCity } },
           ],
         };
       }
 
       return {
-        text: "We operate in multiple cities! 🗺️\n\nWhich city would you like to see?",
+        text: "We operate in multiple cities!\n\nWhich city would you like to see?",
         options: uniqueCities.map(c => ({ label: c, value: c, action: 'show_location', data: { city: c } })),
       };
     }
 
-    // PRICE COMPARISON
     if (lowerText.includes('cheap') || lowerText.includes('affordable') || lowerText.includes('budget')) {
       const cheapVehicles = [...vehicles].sort((a, b) => a.pricePerDay - b.pricePerDay).slice(0, 5);
       setChatContext({ step: 'budget_select' });
       return {
-        text: "Here are our budget-friendly options! 💰\n\nBest value vehicles starting from just ₹350/day:",
+        text: "Here are our budget-friendly options!\n\nBest value vehicles starting from just ₹350/day:",
         options: cheapVehicles.map(v => ({
           label: `${v.name} - ₹${v.pricePerDay}/day`,
           value: `/vehicle/${v.id}`,
@@ -288,11 +290,10 @@ export default function ChatBot() {
       };
     }
 
-    // PREMIUM/VIP
     if (lowerText.includes('premium') || lowerText.includes('luxury') || lowerText.includes('high-end')) {
       const premiumVehicles = vehicles.filter(v => v.pricePerDay > 3000).slice(0, 5);
       return {
-        text: "Looking for premium experience! ✨\n\nOur luxury fleet:",
+        text: "Looking for premium experience!\n\nOur luxury fleet:",
         options: premiumVehicles.map(v => ({
           label: `${v.name} - ₹${v.pricePerDay}/day`,
           value: `/vehicle/${v.id}`,
@@ -301,71 +302,58 @@ export default function ChatBot() {
       };
     }
 
-    // BOOKING STATUS
     if (lowerText.includes('booking') || lowerText.includes('my ride') || lowerText.includes('reservation')) {
       return {
-        text: "To check your booking status, please go to your Dashboard. 📱\n\nThere you can see:\n• Active bookings\n• Ride history\n• Cancel modifications\n\nWould you like to go to Dashboard?",
+        text: "To check your booking status, please go to your Dashboard.\n\nThere you can see:\n- Active bookings\n- Ride history\n- Cancel modifications\n\nWould you like to go to Dashboard?",
         options: [
-          { label: '📊 Go to Dashboard', value: '/dashboard', action: 'navigate' },
-          { label: '🔍 New Booking', value: 'find_car', action: 'set_intent' },
+          { label: 'Go to Dashboard', value: '/dashboard', action: 'navigate' },
+          { label: 'New Booking', value: 'find_car', action: 'set_intent' },
         ],
       };
     }
 
-    // COMPLAINTS
-    if (lowerText.includes('problem') || lowerText.includes('issue') || lowerText.includes('complaint') || lowerText.includes('not satisfied')) {
+    if (lowerText.includes('problem') || lowerText.includes('issue') || lowerText.includes('complaint')) {
       return {
-        text: "I'm sorry to hear about your experience. 😟\n\nPlease describe your issue and our team will resolve it within 2 hours.\n\nAlternatively, call our 24/7 helpline: 1800-VCAR-FOR-U",
+        text: "I'm sorry to hear about your experience.\n\nPlease describe your issue and our team will resolve it within 2 hours.\n\nAlternatively, call our 24/7 helpline: 1800-VCAR-FOR-U",
         options: [
-          { label: '📞 Call Helpline', value: 'call', action: 'reply' },
-          { label: '📧 Email Support', value: 'email', action: 'reply' },
+          { label: 'Call Helpline', value: 'call', action: 'reply' },
+          { label: 'Email Support', value: 'email', action: 'reply' },
         ],
       };
     }
 
-    // THANK YOU
     if (lowerText.includes('thank') || lowerText.includes('thanks') || lowerText.includes('nice')) {
       return {
-        text: "You're welcome! 😊 Happy to help!\n\nAnything else I can assist you with?",
+        text: "You're welcome! Happy to help!\n\nAnything else I can assist you with?",
         options: [
-          { label: '��� Find Vehicle', value: 'find_car', action: 'set_intent' },
-          { label: '❓ More Questions', value: 'help', action: 'reply' },
+          { label: 'Find Vehicle', value: 'find_car', action: 'set_intent' },
+          { label: 'More Questions', value: 'help', action: 'reply' },
         ],
         quickReplies: ['Yes', 'No thanks'],
       };
     }
 
-    // GOODBYE
     if (lowerText.includes('bye') || lowerText.includes('exit') || lowerText.includes('close')) {
       return {
-        text: "Thank you for choosing VCarForU! 🚗\n\nSafe travels and see you soon! 👋",
+        text: "Thank you for choosing VCarForU!\n\nSafe travels and see you soon!",
       };
     }
 
-    // RANDOM/PICKUP LINES
-    const pickupResponses = [
-      "Interesting! 😄\n\nI can help you find a vehicle, check pricing, or learn about our policies. What would you like?",
-      "Got it! 👍\n\nWould you like to search for vehicles or get more information?",
-      "Sure thing! 🌟\n\nLet me know what you're looking for - I can help with booking, pricing, or any questions!",
-    ];
-    const randomResponse = pickupResponses[Math.floor(Math.random() * pickupResponses.length)];
-
     return {
-      text: randomResponse,
+      text: getRandomFallback(),
       options: [
-        { label: '🔍 Find Vehicle', value: 'find_car', action: 'set_intent' },
-        { label: '💰 Check Pricing', value: 'price', action: 'reply' },
-        { label: '📋 Policies', value: 'cancel', action: 'reply' },
+        { label: 'Find Vehicle', value: 'find_car', action: 'set_intent' },
+        { label: 'Check Pricing', value: 'price', action: 'reply' },
+        { label: 'Policies', value: 'cancel', action: 'reply' },
       ],
       quickReplies: ['Find Car', 'Pricing', 'Policies'],
     };
-  };
+  }, [chatContext]);
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
       {isOpen ? (
         <div className="bg-white rounded-2xl shadow-2xl w-80 sm:w-[420px] flex flex-col overflow-hidden border border-gray-100 h-[600px] transition-all duration-300">
-          {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-blue-700 p-4 text-white flex justify-between items-center">
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -376,7 +364,7 @@ export default function ChatBot() {
                 <h3 className="font-bold text-lg">VCarForU Assistant</h3>
                 <p className="text-xs text-blue-100 flex items-center gap-1">
                   <span className="w-2 h-2 bg-green-400 rounded-full inline-block"></span>
-                  Online • Ready to help
+                  Online
                 </p>
               </div>
             </div>
@@ -397,7 +385,6 @@ export default function ChatBot() {
             </div>
           </div>
 
-          {/* FAQ Panel */}
           {showFAQ && (
             <div className="bg-gray-50 border-b border-gray-200 p-3 max-h-48 overflow-y-auto">
               <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Quick Answers</h4>
@@ -415,7 +402,6 @@ export default function ChatBot() {
             </div>
           )}
 
-          {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50 flex flex-col">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
@@ -429,7 +415,6 @@ export default function ChatBot() {
                   <p>{msg.text}</p>
                 </div>
                 
-                {/* Action Buttons */}
                 {msg.sender === 'bot' && msg.options && (
                   <div className="flex flex-wrap gap-1.5 mt-2 max-w-[90%] pl-1">
                     {msg.options.map((opt, i) => (
@@ -444,7 +429,6 @@ export default function ChatBot() {
                   </div>
                 )}
 
-                {/* Quick Replies */}
                 {msg.sender === 'bot' && msg.quickReplies && msg.quickReplies.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 mt-2 max-w-[90%] pl-1">
                     {msg.quickReplies.map((qr, i) => (
@@ -463,7 +447,6 @@ export default function ChatBot() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Input Area */}
           <div className="p-3 bg-white border-t border-gray-100">
             <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex items-center gap-2">
               <input

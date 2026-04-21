@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, Phone } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const CustomerSignup = () => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const CustomerSignup = () => {
       } else {
         setError(data.message || data.error || 'Registration failed');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to connect to server. Please try again.');
     } finally {
       setIsLoading(false);

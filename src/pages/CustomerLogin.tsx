@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const CustomerLogin = () => {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ const CustomerLogin = () => {
       } else {
         setError('Invalid credentials. Please check email/password.');
       }
-    } catch (err) {
+    } catch {
       setError('Failed to connect to server. Please try again.');
     } finally {
       setIsLoading(false);
