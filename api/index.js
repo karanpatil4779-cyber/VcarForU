@@ -1,20 +1,16 @@
 import express from 'express';
-import { createServer } from 'http';
-import { parse } from 'url';
-import fs from 'fs';
-import path from 'path';
 import mysql from 'mysql2/promise';
 import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 app.use(express.json());
 
-const dbConfig = process.env.DATABASE_URL || {
-  host: 'centerbeam.proxy.rlwy.net',
-  user: 'root',
-  password: 'YGFimxVjfPMOAAfdMnfvbmrVHAdCnUYp',
-  port: 41829,
-  database: 'railway'
+const dbConfig = {
+  host: process.env.MYSQLHOST || 'centerbeam.proxy.rlwy.net',
+  user: process.env.MYSQLUSER || 'root',
+  password: process.env.MYSQLPASSWORD || 'YGFimxVjfPMOAAfdMnfvbmrVHAdCnUYp',
+  port: parseInt(process.env.MYSQLPORT || '41829'),
+  database: process.env.MYSQLDATABASE || 'railway'
 };
 
 async function getConnection() {
@@ -22,14 +18,13 @@ async function getConnection() {
 }
 
 // Auth API
-app.post('/api/auth', async (req, res) => {
+app.post('/auth', async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   const { action, type } = req.query;
@@ -50,7 +45,7 @@ app.post('/api/auth', async (req, res) => {
         return res.status(201).json({ success: true, user: { id, name, email, role: 'customer' } });
       } else if (type === 'agency') {
         await connection.execute(
-          'INSERT INTO agencies (id, name, email, password, city, contact) VALUES (?, ?, ?, ?, ?, ?)',
+          'INSERT INTO agencies (id, name, email, password, city, contact) VALUES (?, ?, ?, ?, ?)',
           [id, name, email, password, city, phone]
         );
         await connection.end();
@@ -90,14 +85,13 @@ app.post('/api/auth', async (req, res) => {
 });
 
 // Bookings API
-app.post('/api/bookings', async (req, res) => {
+app.post('/bookings', async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
 
   const { action } = req.query;
@@ -124,7 +118,7 @@ app.post('/api/bookings', async (req, res) => {
   }
 });
 
-app.get('/api/bookings', async (req, res) => {
+app.get('/bookings', async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -155,9 +149,4 @@ app.get('/api/bookings', async (req, res) => {
   }
 });
 
-const server = createServer(app);
-const PORT = process.env.PORT || 3001;
-
-server.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+export default app;
