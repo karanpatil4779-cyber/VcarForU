@@ -6,7 +6,7 @@ import { agencies } from '../../data/agencies';
 
 type MessageOption = {
   label: string;
-  action?: 'navigate' | 'reply' | 'set_intent' | 'filter' | 'show_location';
+  action?: string;
   value: string;
   data?: Record<string, unknown>;
 };

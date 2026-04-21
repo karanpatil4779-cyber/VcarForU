@@ -11,7 +11,7 @@ export type VehicleCategory =
 
 export type FuelType = 'Petrol' | 'Diesel' | 'CNG' | 'Electric' | 'Petrol/CNG';
 
-export type TransmissionType = 'Manual' | 'Automatic' | 'CVT';
+export type TransmissionType = 'Manual' | 'Automatic' | 'CVT' | 'Auto';
 
 export interface Vehicle {
   id: string;
