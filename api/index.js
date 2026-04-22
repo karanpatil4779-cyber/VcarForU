@@ -56,6 +56,17 @@ export default async function handler(req, res) {
   if (method === 'OPTIONS') return res.status(200).end();
 
   try {
+    if (path.includes('/auth')) {
+        return res.status(200).json({
+            success: true,
+            mode: "Static Demo",
+            user: {
+                id: "demo-user-123",
+                name: "Demo User",
+                email: "demo@example.com"
+            }
+        });
+    }
     if (path.includes('/vehicles')) {
         const city = searchParams.get('city');
         let filtered = [...vehicles];

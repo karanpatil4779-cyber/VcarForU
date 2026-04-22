@@ -6,7 +6,7 @@ import { findVehicleById } from '../utils/auth';
 import { useAuth } from '../context/AuthContext';
 import { addBooking } from '../utils/bookings';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const PAYMENT_METHODS = [
   { id: 'upi', label: 'UPI', icon: Smartphone },
