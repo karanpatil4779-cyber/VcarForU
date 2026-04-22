@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShieldCheck, Zap, Bike, Star } from 'lucide-react';
 import Button from '../components/ui/Button';
@@ -12,8 +12,16 @@ import type { Vehicle } from '../types/vehicle';
 const Home = () => {
   const navigate = useNavigate();
   const [selectedCity, setSelectedCity] = useState('Mumbai');
-  // Get 3 random popular vehicles for Featured section
-  const featuredVehicles = vehicles.filter((v: Vehicle) => v.rating >= 4.7).slice(0, 3);
+  const [apiVehicles, setApiVehicles] = useState<Vehicle[]>([]);
+
+  useEffect(() => {
+    fetch('/api/vehicles').then(r => r.json()).then(data => {
+      setApiVehicles(data.filter((v: any) => v.rating >= 4.5).slice(0, 3));
+    }).catch(() => {});
+  }, []);
+
+  // Combine static and dynamic for featured section
+  const featuredVehicles = [...vehicles.filter((v: Vehicle) => v.rating >= 4.7).slice(0, 3), ...apiVehicles].slice(0, 3);
   const featuredAgencies = agencies.slice(0, 4);
 
   return (

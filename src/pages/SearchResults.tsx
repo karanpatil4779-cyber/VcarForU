@@ -8,7 +8,6 @@ import type { FilterState } from '../components/ui/Filters';
 import VehicleCard from '../components/ui/VehicleCard';
 import { vehicles } from '../data/vehicles';
 import { cities } from '../data/cities';
-import { getAllAgencyVehicles } from '../utils/auth';
 import type { Vehicle } from '../types/vehicle';
 
 const SearchResults = () => {
@@ -26,19 +25,36 @@ const SearchResults = () => {
     city: initialCity,
   });
 
+  const [apiVehicles, setApiVehicles] = useState<Vehicle[]>([]);
+
+  useEffect(() => {
+    const fetchVehicles = async () => {
+      try {
+        const response = await fetch('/api/vehicles');
+        if (response.ok) {
+          const data = await response.json();
+          setApiVehicles(data);
+        }
+      } catch (err) {
+        // Silently handle error or log
+      }
+    };
+    fetchVehicles();
+  }, []);
+
   const cityNames = cities.map(c => c.name);
 
   const allVehicles = useMemo(() => {
-    const localVehicles = getAllAgencyVehicles();
-    return [...vehicles, ...localVehicles];
-  }, []);
+    return [...vehicles, ...apiVehicles];
+  }, [apiVehicles]);
 
   // Filter Logic
   const filteredVehicles = useMemo(() => {
     return allVehicles.filter((v: Vehicle) => {
       // Search
-      const matchesSearch = v.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                            v.brand.toLowerCase().includes(searchQuery.toLowerCase());
+      const searchLower = searchQuery.toLowerCase();
+      const matchesSearch = v.name.toLowerCase().includes(searchLower) || 
+                            v.brand.toLowerCase().includes(searchLower);
       
       // City
       const matchesCity = filters.city === 'all' || v.city === filters.city;

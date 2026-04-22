@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { addAgencyVehicle, getAgencyVehicles } from '../utils/auth';
-import { getBookingsByAgency, type BookingRecord } from '../utils/bookings';
 import type { Vehicle } from '../types/vehicle';
 import Button from '../components/ui/Button';
+import type { BookingRecord } from '../utils/bookings';
 
 const AgencyDashboard = () => {
   const navigate = useNavigate();
@@ -31,9 +30,26 @@ const AgencyDashboard = () => {
 
   useEffect(() => {
     if (!user) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setVehicles(getAgencyVehicles(user.id));
-    setBookings(getBookingsByAgency(user.id));
+    
+    const fetchData = async () => {
+      try {
+        const vRes = await fetch(`/api/vehicles?agencyId=${user.id}`);
+        if (vRes.ok) {
+          const vData = await vRes.json();
+          setVehicles(vData);
+        }
+
+        const bRes = await fetch(`/api/bookings?agencyId=${user.id}`);
+        if (bRes.ok) {
+          const bData = await bRes.json();
+          setBookings(bData);
+        }
+      } catch {
+        // Silently handle error
+      }
+    };
+
+    fetchData();
   }, [user]);
 
   if (!user || user.role !== 'agency') {
@@ -48,14 +64,14 @@ const AgencyDashboard = () => {
     );
   }
 
-  const totalEarnings = bookings.reduce((sum, b) => sum + b.amount, 0);
+  const totalEarnings = bookings.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
   const activeRentals = bookings.filter((b) => b.status === 'Confirmed').length;
   const pendingBookings = bookings.filter((b) => b.status === 'Confirmed').length;
-  const uniqueCustomers = new Set(bookings.map((b) => b.userId)).size;
+  const uniqueCustomers = new Set(bookings.map((b) => b.user_id || b.userId)).size;
   const rating = 4.8;
   const maintenance = 23000;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('');
 
@@ -65,14 +81,14 @@ const AgencyDashboard = () => {
     }
 
     setIsSaving(true);
-    const newVehicle: Vehicle = {
-      id: `local-${Date.now()}`,
+    const newVehicle = {
+      id: `v-${Date.now()}`,
       name: form.name.trim(),
       brand: form.brand.trim(),
-      category: form.category as Vehicle['category'],
+      category: form.category,
       type: form.type,
-      fuel: form.fuel as Vehicle['fuel'],
-      transmission: form.transmission as Vehicle['transmission'],
+      fuel: form.fuel,
+      transmission: form.transmission,
       seats: Number(form.seats),
       mileage: form.mileage,
       pricePerDay: Number(form.pricePerDay),
@@ -83,40 +99,46 @@ const AgencyDashboard = () => {
       agency: user.name,
       agencyId: user.id,
       rating: 4.7,
-      reviews: 7,
-      lat: 19.076,
-      lng: 72.8777,
-      features: ['Free pickup', 'Flexible returns', '24/7 support'],
+      reviews: 0,
     };
 
-    const result = addAgencyVehicle(newVehicle);
-    if (!result.success) {
-      setStatus(result.message);
+    try {
+      const response = await fetch('/api/vehicles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newVehicle)
+      });
+      
+      const data = await response.json();
+      if (data.success) {
+        setVehicles((prev) => [newVehicle as unknown as Vehicle, ...prev]);
+        setStatus('Vehicle added successfully.');
+        setForm({
+          name: '',
+          brand: '',
+          category: 'sedan',
+          type: 'Sedan',
+          fuel: 'Petrol',
+          transmission: 'Manual',
+          seats: '4',
+          mileage: '20 kmpl',
+          pricePerDay: '1200',
+          deposit: '5000',
+          city: 'Mumbai',
+          location: 'Lower Parel',
+          image: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1200&q=80',
+        });
+      } else {
+        setStatus(data.error || 'Failed to add vehicle.');
+      }
+    } catch {
+      setStatus('Server connection error.');
+    } finally {
       setIsSaving(false);
-      return;
     }
-
-    setVehicles((prev) => [newVehicle, ...prev]);
-    setStatus('Vehicle added successfully.');
-    setForm({
-      name: '',
-      brand: '',
-      category: 'sedan',
-      type: 'Sedan',
-      fuel: 'Petrol',
-      transmission: 'Manual',
-      seats: '4',
-      mileage: '20 kmpl',
-      pricePerDay: '1200',
-      deposit: '5000',
-      city: 'Mumbai',
-      location: 'Lower Parel',
-      image: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1200&q=80',
-    });
-    setIsSaving(false);
   };
 
-  const customers = Array.from(new Map(bookings.map((b) => [b.userId, b])).values());
+  const customers = Array.from(new Map(bookings.map((b) => [b.user_id || b.userId, b])).values());
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-6">

@@ -9,36 +9,45 @@ const dbConfig = {
 };
 
 async function getConnection() {
-  return await mysql.createConnection(dbConfig);
+  return await mysql.createConnection(process.env.DATABASE_URL || dbConfig);
 }
 
-const apiHandler = async (req, res) => {
-  const url = new URL(req.url, `https://${req.headers.get('host')}`);
-  const path = url.pathname;
-  
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  
-  if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+export default async function handler(req, context) {
+  // Extract info from request (Vercel/Netlify compatible check)
+  const method = req.method;
+  const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+  const path = url.pathname.replace(/^\/\.netlify\/functions\/index/, '').replace(/^\/api/, '');
+  const searchParams = url.searchParams;
+
+  const headers = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'GET,OPTIONS,POST',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Content-Type': 'application/json'
+  };
+
+  if (method === 'OPTIONS') {
+    return { statusCode: 200, headers, body: '' };
   }
 
   let body = {};
-  try {
-    const raw = await req.text();
-    body = raw ? JSON.parse(raw) : {};
-  } catch (e) {
-    body = {};
+  if (method === 'POST') {
+    try {
+      const raw = await req.text();
+      body = raw ? JSON.parse(raw) : {};
+    } catch (e) {
+      body = {};
+    }
   }
 
   try {
-    if (path.endsWith('/auth') || path === '/auth') {
-      const { action, type } = url.searchParams;
-      const { name, email, password, phone, city } = body;
+    const connection = await getConnection();
 
-      let connection = await getConnection();
+    // AUTH ENDPOINT
+    if (path.includes('/auth')) {
+      const action = searchParams.get('action');
+      const type = searchParams.get('type');
+      const { name, email, password, phone, city } = body;
 
       if (action === 'register') {
         const id = Date.now().toString();
@@ -54,43 +63,41 @@ const apiHandler = async (req, res) => {
           );
         }
         await connection.end();
-        res.status(201).json({ success: true, user: { id, name, email, role: type } });
-        return;
+        return { statusCode: 201, headers, body: JSON.stringify({ success: true, user: { id, name, email, role: type } }) };
       }
 
       if (action === 'login') {
+        let rows = [];
         if (type === 'customer') {
-          const [rows] = await connection.execute(
+          [rows] = await connection.execute(
             'SELECT * FROM users WHERE email = ? AND password = ?',
             [email, password]
           );
-          await connection.end();
-          if (rows.length > 0) {
-            res.status(200).json({ success: true, user: { id: rows[0].id, name: rows[0].name, email: rows[0].email, role: 'customer' } });
-            return;
-          }
         } else if (type === 'agency') {
-          const [rows] = await connection.execute(
+          [rows] = await connection.execute(
             'SELECT * FROM agencies WHERE email = ? AND password = ?',
             [email, password]
           );
-          await connection.end();
-          if (rows.length > 0) {
-            res.status(200).json({ success: true, user: { id: rows[0].id, name: rows[0].name, email: rows[0].email, role: 'agency' } });
-            return;
-          }
         }
-        res.status(401).json({ success: false, message: 'Invalid credentials' });
-        return;
+        await connection.end();
+        if (rows.length > 0) {
+          const user = rows[0];
+          return { 
+            statusCode: 200, 
+            headers, 
+            body: JSON.stringify({ 
+              success: true, 
+              user: { id: user.id, name: user.name, email: user.email, role: type } 
+            }) 
+          };
+        }
+        return { statusCode: 401, headers, body: JSON.stringify({ success: false, message: 'Invalid credentials' }) };
       }
     }
 
-    if (path.endsWith('/bookings') || path === '/bookings') {
-      const { action } = url.searchParams;
-
-      let connection = await getConnection();
-
-      if (req.method === 'POST' && action === 'create') {
+    // BOOKINGS ENDPOINT
+    if (path.includes('/bookings')) {
+      if (method === 'POST') {
         const { userId, agencyId, vehicleId, amount, paymentMethod, userName, userEmail, vehicleName, brand, city } = body;
         const id = 'VCU' + Math.floor(100000 + Math.random() * 900000);
         await connection.execute(
@@ -98,12 +105,12 @@ const apiHandler = async (req, res) => {
           [id, userId, agencyId, vehicleId, amount, paymentMethod, 'Confirmed', userName, userEmail, vehicleName, brand, city]
         );
         await connection.end();
-        res.status(201).json({ success: true, booking: { id, userId, amount, status: 'Confirmed' } });
-        return;
+        return { statusCode: 201, headers, body: JSON.stringify({ success: true, booking: { id, userId, amount, status: 'Confirmed' } }) };
       }
 
-      if (req.method === 'GET') {
-        const { userId, agencyId } = url.searchParams;
+      if (method === 'GET') {
+        const userId = searchParams.get('userId');
+        const agencyId = searchParams.get('agencyId');
         let query = 'SELECT * FROM bookings';
         const params = [];
 
@@ -115,19 +122,50 @@ const apiHandler = async (req, res) => {
           params.push(agencyId);
         }
 
-        query += ' ORDER BY booking_date DESC';
+        query += ' ORDER BY id DESC';
         const [rows] = await connection.execute(query, params);
         await connection.end();
-        res.status(200).json(rows);
-        return;
+        return { statusCode: 200, headers, body: JSON.stringify(rows) };
       }
     }
 
-    res.status(404).json({ error: 'Not found' });
+    // VEHICLES ENDPOINT
+    if (path.includes('/vehicles')) {
+      if (method === 'GET') {
+        const agencyId = searchParams.get('agencyId');
+        const city = searchParams.get('city');
+        let query = 'SELECT id, agency_id as agencyId, name, brand, category, type, fuel, transmission, seats, mileage, price_per_day as pricePerDay, deposit, city, location, image_url as image, rating FROM vehicles';
+        const params = [];
+
+        if (agencyId) {
+          query += ' WHERE agency_id = ?';
+          params.push(agencyId);
+        } else if (city) {
+          query += ' WHERE city = ?';
+          params.push(city);
+        }
+
+        const [rows] = await connection.execute(query, params);
+        await connection.end();
+        return { statusCode: 200, headers, body: JSON.stringify(rows) };
+      }
+
+      if (method === 'POST') {
+        const v = body;
+        const id = v.id || Date.now().toString();
+        await connection.execute(
+          'INSERT INTO vehicles (id, agency_id, name, brand, category, type, fuel, transmission, seats, mileage, price_per_day, deposit, location, city, image_url, rating) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [id, v.agencyId, v.name, v.brand, v.category, v.type, v.fuel, v.transmission, v.seats, v.mileage, v.pricePerDay, v.deposit, v.location, v.city, v.image, v.rating || 4.5]
+        );
+        await connection.end();
+        return { statusCode: 201, headers, body: JSON.stringify({ success: true, id }) };
+      }
+    }
+
+    await connection.end();
+    return { statusCode: 404, headers, body: JSON.stringify({ error: 'Not found' }) };
   } catch (error) {
     console.error('API error:', error);
-    res.status(500).json({ success: false, error: error.message });
+    return { statusCode: 500, headers, body: JSON.stringify({ success: false, error: error.message }) };
   }
-};
-
-export default apiHandler;
+}
