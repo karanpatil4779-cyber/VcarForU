@@ -8,13 +8,31 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { action, type } = req.query;
-  const { name, email, password, phone, city } = req.body;
+  const url = new URL(req.url, `https://${req.headers.get('host')}`);
+  const action = url.searchParams.get('action');
+  const type = url.searchParams.get('type');
+  
+  let body = {};
+  try {
+    const rawBody = await req.text();
+    body = rawBody ? JSON.parse(rawBody) : {};
+  } catch (e) {
+    body = {};
+  }
+
+  const { name, email, password, phone, city } = body;
 
   try {
     if (action === 'register') {
-      const users = JSON.parse(req.headers.get('x-user-data') || '[]');
-      const newUser = { id: Date.now().toString(), name, email, password, phone, role: type === 'customer' ? 'customer' : 'agency', city };
+      const newUser = { 
+        id: Date.now().toString(), 
+        name, 
+        email, 
+        password, 
+        phone, 
+        role: type === 'customer' ? 'customer' : 'agency', 
+        city 
+      };
       res.status(201).json({ success: true, user: newUser });
       return;
     }

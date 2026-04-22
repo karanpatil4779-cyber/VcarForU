@@ -8,11 +8,20 @@ export default async function handler(req, res) {
     return;
   }
 
-  const { action } = req.query;
+  const url = new URL(req.url, `https://${req.headers.get('host')}`);
+  const action = url.searchParams.get('action');
+  
+  let body = {};
+  try {
+    const rawBody = await req.text();
+    body = rawBody ? JSON.parse(rawBody) : {};
+  } catch (e) {
+    body = {};
+  }
 
   try {
     if (req.method === 'POST' && action === 'create') {
-      const { userId, agencyId, vehicleId, amount, paymentMethod, userName, userEmail, vehicleName, brand, city } = req.body;
+      const { userId, agencyId, vehicleId, amount, paymentMethod, userName, userEmail, vehicleName, brand, city } = body;
       const id = 'VCU' + Math.floor(100000 + Math.random() * 900000);
       res.status(201).json({ 
         success: true, 
