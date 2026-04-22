@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Search, ShieldCheck, Zap, Bike, Star } from 'lucide-react';
+import { motion } from 'framer-motion';
 import Button from '../components/ui/Button';
 import VehicleCard from '../components/ui/VehicleCard';
 import MapView from '../components/map/MapView';
@@ -35,18 +36,38 @@ const Home = () => {
           alt="Hero Background - Indian Highway"
         />
         
-        <div className="relative z-20 text-center max-w-4xl px-4 animate-fade-in mt-16">
-          <span className="inline-block py-1 px-3 rounded-full bg-primary-500/20 border border-primary-400/30 text-primary-200 text-[13px] font-medium tracking-wide uppercase mb-6 backdrop-blur-sm">
+        <div className="relative z-20 text-center max-w-4xl px-4 mt-16">
+          <motion.span 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-block py-1 px-3 rounded-full bg-primary-500/20 border border-primary-400/30 text-primary-200 text-[13px] font-medium tracking-wide uppercase mb-6 backdrop-blur-sm"
+          >
             India's Premium Rental Marketplace
-          </span>
-          <h1 className="font-heading text-5xl md:text-7xl font-bold mb-6 drop-shadow-xl tracking-tight" style={{ letterSpacing: '-0.02em' }}>
+          </motion.span>
+          <motion.h1 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="font-heading text-5xl md:text-7xl font-bold mb-6 drop-shadow-xl tracking-tight" style={{ letterSpacing: '-0.02em' }}
+          >
             Rent Cars & Bikes from <span className="text-primary-400">Trusted Agencies</span>
-          </h1>
-          <p className="font-body text-xl md:text-2xl mb-10 text-slate-100 max-w-2xl mx-auto leading-relaxed">
+          </motion.h1>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="font-body text-xl md:text-2xl mb-10 text-slate-100 max-w-2xl mx-auto leading-relaxed"
+          >
             From quick city scoots to Himalayan road trips. Find the perfect ride at the best price.
-          </p>
+          </motion.p>
           
-          <div className="glass p-4 rounded-3xl flex flex-col md:flex-row gap-4 max-w-4xl mx-auto shadow-2xl">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="glass p-4 rounded-3xl flex flex-col md:flex-row gap-4 max-w-4xl mx-auto shadow-2xl"
+          >
             <div className="flex-1 text-slate-900 text-left bg-white/50 rounded-2xl p-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-600 ml-3">City</label>
               <select
