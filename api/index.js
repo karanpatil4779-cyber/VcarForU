@@ -1,23 +1,21 @@
 import express from 'express';
 import mysql from 'mysql2/promise';
-import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 app.use(express.json());
 
 const dbConfig = {
-  host: process.env.MYSQLHOST || 'centerbeam.proxy.rlwy.net',
-  user: process.env.MYSQLUSER || 'root',
-  password: process.env.MYSQLPASSWORD || 'YGFimxVjfPMOAAfdMnfvbmrVHAdCnUYp',
-  port: parseInt(process.env.MYSQLPORT || '41829'),
-  database: process.env.MYSQLDATABASE || 'railway'
+  host: 'centerbeam.proxy.rlwy.net',
+  user: 'root',
+  password: 'YGFimxVjfPMOAAfdMnfvbmrVHAdCnUYp',
+  port: 41829,
+  database: 'railway'
 };
 
 async function getConnection() {
   return await mysql.createConnection(dbConfig);
 }
 
-// Auth API
 app.post('/auth', async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
@@ -30,11 +28,12 @@ app.post('/auth', async (req, res) => {
   const { action, type } = req.query;
   const { name, email, password, phone, city } = req.body;
 
+  let connection;
   try {
-    const connection = await getConnection();
+    connection = await getConnection();
 
     if (action === 'register') {
-      const id = uuidv4();
+      const id = Date.now().toString();
       
       if (type === 'customer') {
         await connection.execute(
@@ -76,15 +75,15 @@ app.post('/auth', async (req, res) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
-    await connection.end();
+    if (connection) await connection.end();
     res.status(405).json({ message: 'Method Not Allowed' });
   } catch (error) {
     console.error('Auth error:', error);
+    if (connection) await connection.end();
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Bookings API
 app.post('/bookings', async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,POST');
@@ -97,8 +96,9 @@ app.post('/bookings', async (req, res) => {
   const { action } = req.query;
   const { userId, agencyId, vehicleId, amount, paymentMethod, userName, userEmail, vehicleName, brand, city } = req.body;
 
+  let connection;
   try {
-    const connection = await getConnection();
+    connection = await getConnection();
 
     if (action === 'create') {
       const id = 'VCU' + Math.floor(100000 + Math.random() * 900000);
@@ -110,10 +110,11 @@ app.post('/bookings', async (req, res) => {
       return res.status(201).json({ success: true, booking: { id, userId, amount, status: 'Confirmed' } });
     }
 
-    await connection.end();
+    if (connection) await connection.end();
     res.status(405).json({ message: 'Method Not Allowed' });
   } catch (error) {
     console.error('Bookings error:', error);
+    if (connection) await connection.end();
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -125,8 +126,9 @@ app.get('/bookings', async (req, res) => {
 
   const { userId, agencyId } = req.query;
 
+  let connection;
   try {
-    const connection = await getConnection();
+    connection = await getConnection();
     let query = 'SELECT * FROM bookings';
     const params = [];
 
@@ -145,6 +147,7 @@ app.get('/bookings', async (req, res) => {
     return res.status(200).json(rows);
   } catch (error) {
     console.error('Bookings error:', error);
+    if (connection) await connection.end();
     res.status(500).json({ success: false, error: error.message });
   }
 });
