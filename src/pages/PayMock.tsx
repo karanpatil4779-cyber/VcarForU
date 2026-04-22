@@ -72,7 +72,7 @@ const PayMock = () => {
         createdAt: new Date().toISOString(),
       };
       
-      await fetch(`${API_URL}/api/bookings?action=create`, {
+      await fetch(`${API_URL}/bookings?action=create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

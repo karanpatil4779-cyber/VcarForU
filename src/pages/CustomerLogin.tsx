@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Mail, Lock } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const CustomerLogin = () => {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ const CustomerLogin = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${API_URL}/api/auth?action=login&type=customer`, {
+      const response = await fetch(`${API_URL}/auth?action=login&type=customer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.trim().toLowerCase(), password })

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Building2 } from 'lucide-react';
 
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 const AgencySignup = () => {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ const AgencySignup = () => {
 
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_URL}/api/auth?action=register&type=agency`, {
+      const response = await fetch(`${API_URL}/auth?action=register&type=agency`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
