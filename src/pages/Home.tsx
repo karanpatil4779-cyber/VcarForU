@@ -96,7 +96,7 @@ const Home = () => {
                 Find Rides
               </Button>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 

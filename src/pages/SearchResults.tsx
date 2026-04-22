@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Grid, Map as MapIcon, SlidersHorizontal, Search as SearchIcon } from 'lucide-react';
 import Button from '../components/ui/Button';

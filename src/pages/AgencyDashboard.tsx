@@ -67,7 +67,7 @@ const AgencyDashboard = () => {
   const totalEarnings = bookings.reduce((sum, b) => sum + (Number(b.amount) || 0), 0);
   const activeRentals = bookings.filter((b) => b.status === 'Confirmed').length;
   const pendingBookings = bookings.filter((b) => b.status === 'Confirmed').length;
-  const uniqueCustomers = new Set(bookings.map((b) => b.user_id || b.userId)).size;
+  const uniqueCustomers = new Set(bookings.map((b) => b.userId)).size;
   const rating = 4.8;
   const maintenance = 23000;
 
@@ -138,7 +138,7 @@ const AgencyDashboard = () => {
     }
   };
 
-  const customers = Array.from(new Map(bookings.map((b) => [b.user_id || b.userId, b])).values());
+  const customers = Array.from(new Map(bookings.map((b) => [b.userId, b])).values());
 
   return (
     <div className="min-h-screen bg-slate-100 p-4 md:p-6">
