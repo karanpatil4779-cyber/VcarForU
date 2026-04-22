@@ -1,7 +1,6 @@
 import mysql from 'mysql2/promise';
-import { v4 as uuidv4 } from 'uuid';
 
-const dbConfig = process.env.DATABASE_URL || {
+const dbConfig = {
   host: 'centerbeam.proxy.rlwy.net',
   user: 'root',
   password: 'YGFimxVjfPMOAAfdMnfvbmrVHAdCnUYp',
@@ -26,8 +25,9 @@ export default async function handler(req, res) {
   const { action } = req.query;
   const { userId, agencyId, vehicleId, amount, paymentMethod, userName, userEmail, vehicleName, brand, city } = req.body;
 
+  let connection;
   try {
-    const connection = await getConnection();
+    connection = await getConnection();
 
     if (req.method === 'POST' && action === 'create') {
       const id = 'VCU' + Math.floor(100000 + Math.random() * 900000);
@@ -63,6 +63,7 @@ export default async function handler(req, res) {
     res.status(405).json({ message: 'Method Not Allowed' });
   } catch (error) {
     console.error('Bookings error:', error);
+    if (connection) await connection.end();
     res.status(500).json({ success: false, error: error.message });
   }
 }

@@ -1,7 +1,7 @@
 import mysql from 'mysql2/promise';
 import { v4 as uuidv4 } from 'uuid';
 
-const dbConfig = process.env.DATABASE_URL || {
+const dbConfig = {
   host: 'centerbeam.proxy.rlwy.net',
   user: 'root',
   password: 'YGFimxVjfPMOAAfdMnfvbmrVHAdCnUYp',
@@ -26,8 +26,9 @@ export default async function handler(req, res) {
   const { action, type } = req.query;
   const { name, email, password, phone, city } = req.body;
 
+  let connection;
   try {
-    const connection = await getConnection();
+    connection = await getConnection();
 
     if (action === 'register') {
       const id = uuidv4();
@@ -76,6 +77,7 @@ export default async function handler(req, res) {
     res.status(405).json({ message: 'Method Not Allowed' });
   } catch (error) {
     console.error('Auth error:', error);
+    if (connection) await connection.end();
     res.status(500).json({ success: false, error: error.message });
   }
 }
