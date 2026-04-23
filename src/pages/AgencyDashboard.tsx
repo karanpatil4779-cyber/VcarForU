@@ -23,11 +23,11 @@ const AgencyDashboard = () => {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [chatInput, setChatInput] = useState('');
   const [customers, setCustomers] = useState<{id: string; name: string; phone: string; lastMessage: string; time: string; unread: number; online: boolean}[]>([
-    { id: 'c1', name: 'Karan Sharma', phone: '+91 98765 43210', lastMessage: 'Is home delivery available?', time: '10:45 AM', unread: 2, online: true },
-    { id: 'c2', name: 'Tanmay Patel', phone: '+91 98765 43211', lastMessage: 'What documents required?', time: '10:30 AM', unread: 1, online: true },
-    { id: 'c3', name: 'Sujal Mehta', phone: '+91 98765 43212', lastMessage: 'Pickup from airport ok?', time: '10:15 AM', unread: 0, online: false },
-    { id: 'c4', name: 'Dhaval Singh', phone: '+91 98765 43213', lastMessage: 'Price for weekend rental?', time: '09:45 AM', unread: 3, online: true },
-    { id: 'c5', name: 'Abhay Joshi', phone: '+91 98765 43214', lastMessage: 'Can I get car delivered?', time: 'Yesterday', unread: 0, online: false },
+    { id: 'c1', name: 'Karan Patil', phone: '+91 98765 43210', lastMessage: 'Is home delivery available?', time: '10:45 AM', unread: 2, online: true },
+    { id: 'c2', name: 'Tanmay Patil', phone: '+91 98765 43211', lastMessage: 'What documents required?', time: '10:30 AM', unread: 1, online: true },
+    { id: 'c3', name: 'Sujal Patil', phone: '+91 98765 43212', lastMessage: 'Pickup from airport ok?', time: '10:15 AM', unread: 0, online: false },
+    { id: 'c4', name: 'Dhaval Patil', phone: '+91 98765 43213', lastMessage: 'Price for weekend rental?', time: '09:45 AM', unread: 3, online: true },
+    { id: 'c5', name: 'Abhay Pawar', phone: '+91 98765 43214', lastMessage: 'Can I get car delivered?', time: 'Yesterday', unread: 0, online: false },
   ]);
   const [customerChats, setCustomerChats] = useState<Record<string, {from: 'agency'|'customer'; text: string; time: string}[]>>({
     'c1': [
