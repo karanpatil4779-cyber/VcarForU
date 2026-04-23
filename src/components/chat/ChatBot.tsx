@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { X, Send, Sparkles, Navigation, AlertTriangle, ShieldCheck, Zap, type LucideIcon } from 'lucide-react';
+import { X, Send, Sparkles, Navigation, ShieldCheck, Zap, Fuel, Siren, MapPin, Car, Home, Search, Phone, type LucideIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { vehicles as staticVehicles } from '../../data/vehicles';
 import { mechanics } from '../../data/mechanics';
+import { stations } from '../../data/stations';
 import { useAuth } from '../../context/AuthContext';
 
 type MessageOption = {
@@ -35,12 +36,15 @@ export default function ChatBot() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [vehicles, setVehicles] = useState(staticVehicles);
 
+  const fuelStations = stations.filter(s => s.type === 'fuel').slice(0, 5);
+  const electricStations = stations.filter(s => s.type === 'electric').slice(0, 5);
+
   const initWelcomeMessage = (): Message => ({
     id: 'welcome',
-    text: `Welcome back ${user ? user.name.split(' ')[0] : 'traveler'}! 🚗💨\nI'm your intelligent Mobility Assistant. I can help you find cars, compare prices, or get emergency roadside help. What do you need today?`,
+    text: `Welcome back ${user ? user.name.split(' ')[0] : 'traveler'}! 🚗💨\nI'm your AI Mobility Assistant. I can help you find cars, fuel stations, emergency help, or navigate the app. What do you need?`,
     sender: 'bot',
     timestamp: new Date(),
-    quickReplies: ['📍 Cars Near Me', '💰 Best under ₹2000', '⚖️ Compare SUVs', '🚨 Emergency Help']
+    quickReplies: ['🚗 Book a Car', '⛽ Fuel Stations', '🚨 Emergency Help', '📊 My Dashboard']
   });
 
   useEffect(() => {
@@ -62,125 +66,151 @@ export default function ChatBot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const generateAIResponse = (input: string): Partial<Message> => {
-    const text = input.toLowerCase();
-    const isUrgent = text.includes('urgent') || text.includes('broke') || text.includes('help') || text.includes('emergency') || text.includes('accident');
+  const generateAIResponse = (inputText: string): Partial<Message> => {
+    const text = inputText.toLowerCase();
     
-    // 1. EMERGENCY MODE
-    if (isUrgent) {
+    // Emergency Mode
+    if (text.includes('emergency') || text.includes('accident') || text.includes('help') || text.includes('urgent') || text.includes('police') || text.includes('ambulance')) {
       return {
-        text: "🚨 EMERGENCY MODE ACTIVATED 🚨\nI'm finding the nearest mechanics and support for you right now.",
+        text: "🚨 EMERGENCY MODE 🚨\nI'm connecting you with emergency services.",
         isUrgent: true,
-        options: mechanics.slice(0, 2).map(m => ({
-          label: `${m.name} (${m.distance} away) - ⭐ ${m.rating}`,
-          value: m.contact,
-          action: 'call',
-          icon: AlertTriangle
+        options: [
+          { label: 'Call Police (100)', value: '100', action: 'call', icon: Siren },
+          { label: 'Call Ambulance (102)', value: '102', action: 'call', icon: Siren },
+          { label: 'Call Roadside Assistance', value: '18001234567', action: 'call', icon: Phone }
+        ],
+        quickReplies: ['⛽ Find Fuel Station', '🔧 Find Mechanic']
+      };
+    }
+
+    // Fuel Stations
+    if (text.includes('fuel') || text.includes('petrol') || text.includes('gas') || text.includes('diesel') || text.includes('charging') || text.includes('ev')) {
+      const stationOptions: MessageOption[] = [
+        ...fuelStations.map(s => ({
+          label: `${s.name} - ${s.city}`,
+          value: `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`,
+          action: 'map' as const,
+          icon: Fuel
         })),
-        quickReplies: ['Call Police (100)', 'Call Ambulance (108)']
+        ...electricStations.map(s => ({
+          label: `${s.name} - ${s.city}`,
+          value: `https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}`,
+          action: 'map' as const,
+          icon: Zap
+        }))
+      ];
+      return {
+        text: "⛽ Finding nearest fuel & EV charging stations...",
+        options: stationOptions,
+        quickReplies: ['🚗 Book a Car', '📊 Dashboard']
       };
     }
 
-    // 2. LIVE CAR COMPARISON
-    if (text.includes('compare')) {
-      const isSuv = text.includes('suv');
-      const filtered = isSuv ? vehicles.filter(v => v.category === 'suv') : vehicles;
-      const top2 = filtered.slice(0, 2);
-      if (top2.length >= 2) {
-        return {
-          text: `⚖️ **Live Comparison**:\n\n**${top2[0].name}** vs **${top2[1].name}**\n\n💰 Price: ₹${top2[0].pricePerKm}/km vs ₹${top2[1].pricePerKm}/km\n⛽ Fuel: ${top2[0].fuel} vs ${top2[1].fuel}\n⚙️ Trans: ${top2[0].transmission} vs ${top2[1].transmission}\n⭐ Rating: ${top2[0].rating} vs ${top2[1].rating}\n\n🏆 **Winner:** ${top2[0].pricePerKm < top2[1].pricePerKm ? top2[0].name : top2[1].name} is the better value!`,
-          options: [
-            { label: `Book ${top2[0].name}`, value: `/vehicle/${top2[0].id}`, action: 'navigate' },
-            { label: `Book ${top2[1].name}`, value: `/vehicle/${top2[1].id}`, action: 'navigate' }
-          ],
-          quickReplies: ['Compare Sedans', 'Find Cheapest']
-        };
-      }
-    }
-
-    // 3. BUDGET & DISCOVERY ENGINE
-    if (text.includes('cheap') || text.includes('under')) {
-      const budgetMatch = text.match(/\d+/);
-      const budget = budgetMatch ? parseInt(budgetMatch[0]) : 20;
-      const affordable = vehicles.filter(v => v.pricePerKm <= budget).sort((a, b) => a.pricePerKm - b.pricePerKm);
-      
-      if (affordable.length > 0) {
-        return {
-          text: `💰 I found ${affordable.length} cars under ₹${budget}/km. Here are the best deals:`,
-          options: affordable.slice(0, 3).map(v => ({
-            label: `${v.name} - ₹${v.pricePerKm}/km (⭐ ${v.rating})`,
-            value: `/vehicle/${v.id}`,
-            action: 'navigate',
-            icon: ShieldCheck
-          })),
-          quickReplies: ['Sort by Rating', 'Increase Budget']
-        };
-      }
-    }
-
-    // 4. SMART INSIGHTS / PRICE PREDICTION
-    if (text.includes('price') || text.includes('cost') || text.includes('tomorrow')) {
+    // Book a Car
+    if (text.includes('book') || text.includes('rent') || text.includes('car') || text.includes('bike')) {
       return {
-        text: "📊 **Smart Insight:** Prices in Mumbai are expected to rise by 15% this weekend due to high demand. I recommend booking within the next 2 hours to lock in current rates.",
-        quickReplies: ['Find Cars in Mumbai', 'Show Long-Term Plans']
+        text: "🚗 Great! Let me find the best cars for you.",
+        options: vehicles.slice(0, 3).map(v => ({
+          label: `${v.name} - ₹${v.pricePerKm}/km`,
+          value: `/vehicle/${v.id}`,
+          action: 'navigate',
+          icon: Car
+        })),
+        quickReplies: ['🔍 Search All', '💰 Cheapest', '⭐ Top Rated']
       };
     }
 
-    // 4.5 MAP NAVIGATION
-    if (text.includes('map') || text.includes('heat map')) {
+    // Dashboard / My Rides
+    if (text.includes('dashboard') || text.includes('my ride') || text.includes('trip') || text.includes('history') || text.includes('active')) {
       return {
-        text: "🗺️ Opening Heat Map to show vehicles, stations, and mechanics near you...",
-        options: [{ label: 'Go to Map', value: '/dashboard/map', action: 'navigate' }],
-        quickReplies: ['Find Mechanics Near Me', 'Show Stations']
+        text: "📊 Taking you to your Dashboard...",
+        options: [
+          { label: 'My Dashboard', value: '/dashboard', action: 'navigate', icon: Home },
+          { label: 'Active Rides', value: '/dashboard', action: 'navigate', icon: Navigation },
+          { label: 'Journey Tracker', value: '/journey/test', action: 'navigate', icon: MapPin }
+        ],
+        quickReplies: ['🚗 Book New Car', '⛽ Fuel Stations']
       };
     }
 
-    // 5. NEAR ME / LOCATION INTELLIGENCE
-    if (text.includes('mechanic') || text.includes('repair')) {
+    // Journey Tracker
+    if (text.includes('journey') || text.includes('tracker') || text.includes('track') || text.includes('start')) {
       return {
-        text: "🔧 Finding nearest mechanics in your area...",
+        text: "🗺️ Let's start your journey tracker!",
+        options: [
+          { label: 'Start Journey', value: '/journey/test', action: 'navigate', icon: Navigation },
+          { label: 'Find Nearest Fuel', value: 'fuel', action: 'send', icon: Fuel }
+        ],
+        quickReplies: ['📊 Go to Dashboard', '🚗 Book a Car']
+      };
+    }
+
+    // Compare
+    if (text.includes('compare') || text.includes('vs')) {
+      const top2 = vehicles.slice(0, 2);
+      return {
+        text: `⚖️ **Comparison:**\n\n**${top2[0].name}** vs **${top2[1].name}**\n\n💰 ₹${top2[0].pricePerKm}/km vs ₹${top2[1].pricePerKm}/km\n⭐ ${top2[0].rating} vs ${top2[1].rating}`,
+        options: [
+          { label: `Book ${top2[0].name}`, value: `/vehicle/${top2[0].id}`, action: 'navigate' },
+          { label: `Book ${top2[1].name}`, value: `/vehicle/${top2[1].id}`, action: 'navigate' }
+        ],
+        quickReplies: ['🚗 Book a Car', '📊 Dashboard']
+      };
+    }
+
+    // Search
+    if (text.includes('search') || text.includes('find') || text.includes('browse')) {
+      return {
+        text: "🔍 Let's find a vehicle for you!",
+        options: [
+          { label: 'Browse All Cars', value: '/search', action: 'navigate', icon: Search },
+          { label: 'Browse Bikes', value: '/search?type=bike', action: 'navigate', icon: Zap }
+        ],
+        quickReplies: ['💰 Under ₹2000', '⭐ Top Rated']
+      };
+    }
+
+    // Mechanic
+    if (text.includes('mechanic') || text.includes('repair') || text.includes('service')) {
+      return {
+        text: "🔧 Finding nearest mechanics...",
         options: mechanics.slice(0, 3).map(m => ({
-          label: `${m.name} (${m.distance}) - 📞 ${m.contact}`,
+          label: `${m.name} (${m.distance})`,
           value: m.contact,
           action: 'call',
           icon: ShieldCheck
         })),
-        quickReplies: ['Show on Map', 'Emergency Roadside']
+        quickReplies: ['⛽ Fuel Station', '🚨 Emergency']
       };
     }
 
-    if (text.includes('near me') || text.includes('nearby') || text.includes('close')) {
+    // Cheap / Budget
+    if (text.includes('cheap') || text.includes('budget') || text.includes('under') || text.includes('affordable')) {
+      const affordable = [...vehicles].sort((a, b) => a.pricePerKm - b.pricePerKm).slice(0, 3);
       return {
-        text: "📍 Detecting your location...\nI found 3 highly-rated cars within 2 km of you.",
-        options: vehicles.slice(0, 3).map(v => ({
-          label: `${v.name} (1.2 km away) - ₹${v.pricePerKm}/km`,
-          value: `/vehicle/${v.id}`,
-          action: 'navigate',
-          icon: Navigation
-        })),
-        quickReplies: ['Show on Map', 'Find Mechanics Near Me']
-      };
-    }
-
-    // 6. AI RECOMMENDATION (TRIPS)
-    if (text.includes('trip') || text.includes('lonavala') || text.includes('long')) {
-      const suvs = vehicles.filter(v => v.category.toLowerCase() === 'suv' || v.category.toLowerCase() === 'luxury');
-      return {
-        text: "🧠 **AI Suggestion:** Since you're planning a trip, I highly recommend an SUV for better comfort on highways and hilly terrain. Expected fuel cost: ~₹1,500.",
-        options: suvs.slice(0, 2).map(v => ({
+        text: `💰 Found ${affordable.length} affordable cars:`,
+        options: affordable.map(v => ({
           label: `${v.name} - ₹${v.pricePerKm}/km`,
           value: `/vehicle/${v.id}`,
           action: 'navigate',
           icon: Zap
         })),
-        quickReplies: ['Compare SUVs', 'Calculate Total Cost']
+        quickReplies: ['🔍 Search All', '📊 Dashboard']
       };
     }
 
-    // FALLBACK
+    // Navigation Help
+    if (text.includes('how') || text.includes('guide') || text.includes('help')) {
+      return {
+        text: "📱 I can help you navigate the app!\n\n• 🚗 Book a Car → Search & select vehicle\n• 💳 Payment → Complete checkout\n• 📊 Dashboard → View your rides\n• 🗺️ Journey Tracker → Start after payment\n• ⛽ Fuel Stations → Find nearby stations\n• 🚨 Emergency → Police/Ambulance",
+        quickReplies: ['🚗 Book a Car', '📊 My Dashboard', '⛽ Fuel Stations']
+      };
+    }
+
+    // Fallback
     return {
-      text: "I'm equipped to help you with booking, comparisons, price predictions, or emergency assistance. How can I assist you today?",
-      quickReplies: ['Find Cheap Cars', 'Recommend for a Trip', 'Mechanics Near Me']
+      text: "I'm your AI assistant! I can help you with:\n🚗 Booking cars\n⛽ Finding fuel/EV stations\n📊 Your dashboard & rides\n🗺️ Journey tracking\n🚨 Emergency services\n\nWhat would you like?",
+      quickReplies: ['🚗 Book a Car', '⛽ Fuel Stations', '📊 My Dashboard', '🚨 Emergency Help']
     };
   };
 
@@ -215,12 +245,20 @@ export default function ChatBot() {
 
   const handleOptionClick = (opt: MessageOption) => {
     if (opt.action === 'navigate') {
-      navigate(opt.value);
+      if (opt.value.includes('http')) {
+        window.open(opt.value, '_blank');
+      } else {
+        navigate(opt.value);
+      }
       setIsOpen(false);
       return;
     }
     if (opt.action === 'call') {
       window.open(`tel:${opt.value}`, '_self');
+      return;
+    }
+    if (opt.action === 'map') {
+      window.open(opt.value, '_blank');
       return;
     }
     if (opt.action === 'send') {
@@ -258,7 +296,7 @@ export default function ChatBot() {
           <div className="flex-1 overflow-y-auto p-4 space-y-5 bg-slate-50/80">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'} animate-in fade-in slide-in-from-bottom-2`}>
-                <div className={`max-w-[88%] px-4 py-3.5 rounded-2xl text-[14.5px] leading-relaxed shadow-sm whitespace-pre-wrap ${
+                <div className={`max-w-[88%] px-4 py-3.5 rounded-2xl text-[14.5px] leading-relaxed whitespace-pre-wrap ${
                   msg.sender === 'user' 
                     ? 'bg-slate-800 text-white rounded-tr-none' 
                     : msg.isUrgent 
@@ -298,14 +336,15 @@ export default function ChatBot() {
 
           <div className="p-4 bg-white border-t border-slate-100">
             <div className="flex items-center justify-between mb-2 px-1">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Smart Actions</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Quick Actions</span>
               <div className="flex gap-2">
-                <button onClick={() => handleSend("Near me")} className="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-md hover:bg-indigo-100">📍 Near Me</button>
-                <button onClick={() => handleSend("Compare cars")} className="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-md hover:bg-indigo-100">⚖️ Compare</button>
+                <button onClick={() => handleSend("book")} className="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-md hover:bg-indigo-100">🚗</button>
+                <button onClick={() => handleSend("fuel")} className="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-md hover:bg-indigo-100">⛽</button>
+                <button onClick={() => handleSend("dashboard")} className="text-[10px] text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded-md hover:bg-indigo-100">📊</button>
               </div>
             </div>
             <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex items-center gap-2 bg-slate-50 rounded-2xl px-4 py-2 border border-slate-200 focus-within:border-indigo-500 focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all shadow-inner">
-              <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Type a message or request..." className="flex-1 bg-transparent border-none py-2 text-[14px] text-slate-800 outline-none placeholder:text-slate-400 font-medium" />
+              <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask me anything..." className="flex-1 bg-transparent border-none py-2 text-[14px] text-slate-800 outline-none placeholder:text-slate-400 font-medium" />
               <button type="submit" disabled={!input.trim()} className="bg-slate-900 text-white p-2.5 rounded-xl hover:bg-indigo-600 disabled:opacity-50 disabled:hover:bg-slate-900 transition-all shadow-md active:scale-95">
                 <Send className="h-4 w-4" />
               </button>
