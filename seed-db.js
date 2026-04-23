@@ -12,19 +12,22 @@ async function seedDB() {
     connection = await mysql.createConnection(dbUrl);
     console.log("⏳ Connected to DB. Inserting mock data...");
 
-    // 1. Insert 2 Users
+    // 1. Insert Users (Karan, Sujal, Dhaval, Abhay)
     await connection.execute(`
       INSERT IGNORE INTO users (id, name, email, password, phone) VALUES 
-      ('u-1', 'John Doe', 'john@example.com', 'hashedpassword', '9876543210'),
-      ('u-2', 'Jane Smith', 'jane@example.com', 'hashedpassword', '9123456780')
+      ('u-karan', 'Karan Patil', 'karan@patil.com', 'password123', '9876543210'),
+      ('u-sujal', 'Sujal Patil', 'sujal@patil.com', 'password123', '9876543211'),
+      ('u-dhaval', 'Dhaval Patil', 'dhaval@patil.com', 'password123', '9876543212'),
+      ('u-abhay', 'Abhay Pawar', 'abhay@pawar.com', 'password123', '9876543213')
     `);
+    console.log("✅ Users inserted: Karan Patil, Sujal Patil, Dhaval Patil, Abhay Pawar");
 
     // 2. Insert 3 Agencies
     await connection.execute(`
       INSERT IGNORE INTO agencies (id, name, email, password, city, contact, rating, fleet_size) VALUES 
-      ('a-1', 'Zoom Wheels', 'zoom@wheels.com', 'pass', 'Mumbai', '9988776655', 4.8, 120),
-      ('a-2', 'DriveIt', 'contact@driveit.in', 'pass', 'Delhi', '8899001122', 4.5, 80),
-      ('a-3', 'Goa Rides', 'booking@goarides.com', 'pass', 'Goa', '7788990011', 4.9, 45)
+      ('a-1', 'Zoom Wheels', 'zoom@wheels.com', 'Mumbai', '9988776655', 4.8, 120),
+      ('a-2', 'DriveIt', 'contact@driveit.in', 'Delhi', '8899001122', 4.5, 80),
+      ('a-3', 'Goa Rides', 'booking@goarides.com', 'Goa', '7788990011', 4.9, 45)
     `);
 
     // 3. Insert 8 Vehicles
@@ -40,14 +43,21 @@ async function seedDB() {
       ('v-8', 'a-2', 'Toyota Innova', 'Toyota', 'suv', 'car', 'Diesel', 'Automatic', 7, '14 kmpl', 22, 5000, 'Delhi')
     `);
 
-    // 4. Insert 2 Bookings
+    // 4. Insert Bookings for each user
     await connection.execute(`
-      INSERT IGNORE INTO bookings (id, user_id, agency_id, vehicle_id, amount, payment_method, status) VALUES 
-      ('b-1', 'u-1', 'a-1', 'v-1', 4500, 'upi', 'Confirmed'),
-      ('b-2', 'u-2', 'a-3', 'v-6', 1400, 'card', 'Completed')
+      INSERT IGNORE INTO bookings (id, user_id, agency_id, vehicle_id, amount, payment_method, status, user_name, user_email, vehicle_name, brand, city, booking_date) VALUES 
+      ('b-k1', 'u-karan', 'a-1', 'v-2', 3600, 'upi', 'Confirmed', 'Karan Patil', 'karan@patil.com', 'Hyundai Creta', 'Hyundai', 'Mumbai', '2026-04-20'),
+      ('b-k2', 'u-karan', 'a-1', 'v-7', 5000, 'card', 'Confirmed', 'Karan Patil', 'karan@patil.com', 'Mahindra Thar', 'Mahindra', 'Mumbai', '2026-04-25'),
+      ('b-s1', 'u-sujal', 'a-2', 'v-3', 3200, 'upi', 'Confirmed', 'Sujal Patil', 'sujal@patil.com', 'Honda City', 'Honda', 'Delhi', '2026-04-18'),
+      ('b-s2', 'u-sujal', 'a-3', 'v-5', 1500, 'card', 'Completed', 'Sujal Patil', 'sujal@patil.com', 'Royal Enfield Classic', 'Royal Enfield', 'Goa', '2026-04-10'),
+      ('b-d1', 'u-dhaval', 'a-1', 'v-1', 3000, 'upi', 'Confirmed', 'Dhaval Patil', 'dhaval@patil.com', 'Tata Nexon', 'Tata', 'Mumbai', '2026-04-22'),
+      ('b-d2', 'u-dhaval', 'a-2', 'v-4', 1200, 'card', 'Completed', 'Dhaval Patil', 'dhaval@patil.com', 'Maruti Swift', 'Maruti', 'Delhi', '2026-04-15'),
+      ('b-a1', 'u-abhay', 'a-3', 'v-6', 500, 'upi', 'Confirmed', 'Abhay Pawar', 'abhay@pawar.com', 'Honda Activa', 'Honda', 'Goa', '2026-04-28'),
+      ('b-a2', 'u-abhay', 'a-1', 'v-2', 3600, 'card', 'Completed', 'Abhay Pawar', 'abhay@pawar.com', 'Hyundai Creta', 'Hyundai', 'Mumbai', '2026-04-12')
     `);
+    console.log("✅ Bookings inserted for all 4 users");
 
-    console.log("✅ 15 records inserted successfully!");
+    console.log("✅ All data inserted successfully!");
 
   } catch (err) {
     console.error("❌ SQL ERROR:", err);
