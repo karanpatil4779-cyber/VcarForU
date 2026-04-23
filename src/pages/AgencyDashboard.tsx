@@ -66,31 +66,27 @@ const AgencyDashboard = () => {
       { from: 'agency', text: 'Yes, we offer free delivery within 10km radius.', time: '10:40 AM' },
     ]);
     
-    if (bookings.length === 0) {
-      setBookings([
-        { id: 'b1', userId: 'u1', userName: 'Aarav Singh', userEmail: 'aarav@example.com', brand: 'Hyundai', vehicle: 'Hyundai Creta', city: 'Mumbai', date: '2026-04-20', amount: 3600, status: 'Confirmed', paymentMethod: 'UPI', createdAt: '2026-04-18T10:30:00Z' },
-        { id: 'b2', userId: 'u2', userName: 'Jiya Patel', userEmail: 'jiya@example.com', brand: 'Toyota', vehicle: 'Toyota Innova', city: 'Mumbai', date: '2026-04-23', amount: 4500, status: 'Confirmed', paymentMethod: 'Card', createdAt: '2026-04-19T14:20:00Z' },
-        { id: 'b3', userId: 'u3', userName: 'Rohan Mehta', userEmail: 'rohan@example.com', brand: 'Honda', vehicle: 'Honda City', city: 'Pune', date: '2026-04-26', amount: 3000, status: 'Confirmed', paymentMethod: 'UPI', createdAt: '2026-04-20T09:15:00Z' },
-        { id: 'b4', userId: 'u4', userName: 'Priya Sharma', userEmail: 'priya@example.com', brand: 'Maruti', vehicle: 'Maruti Swift', city: 'Mumbai', date: '2026-04-15', amount: 1200, status: 'Completed', paymentMethod: 'UPI', createdAt: '2026-04-10T11:00:00Z' },
-        { id: 'b5', userId: 'u5', userName: 'Vikram Singh', userEmail: 'vikram@example.com', brand: 'Kia', vehicle: 'Kia Seltos', city: 'Nashik', date: '2026-04-29', amount: 4200, status: 'Confirmed', paymentMethod: 'Card', createdAt: '2026-04-21T16:45:00Z' },
-        { id: 'b6', userId: 'u6', userName: 'Ananya Reddy', userEmail: 'ananya@example.com', brand: 'Tata', vehicle: 'Tata Nexon', city: 'Mumbai', date: '2026-05-02', amount: 2700, status: 'Cancelled', paymentMethod: 'UPI', createdAt: '2026-04-22T08:30:00Z' },
-        { id: 'b7', userId: 'u7', userName: 'Karan Joshi', userEmail: 'karan@example.com', brand: 'Hyundai', vehicle: 'Hyundai Venue', city: 'Pune', date: '2026-04-18', amount: 1100, status: 'Completed', paymentMethod: 'Card', createdAt: '2026-04-15T13:00:00Z' },
-        { id: 'b8', userId: 'u8', userName: 'Neha Gupta', userEmail: 'neha@example.com', brand: 'Mahindra', vehicle: 'Mahindra XUV500', city: 'Mumbai', date: '2026-05-05', amount: 5400, status: 'Confirmed', paymentMethod: 'UPI', createdAt: '2026-04-23T10:20:00Z' },
-      ]);
-    }
-
-    if (vehicles.length === 0) {
-      setVehicles([
-        { id: 'v1', name: 'Hyundai Creta', brand: 'Hyundai', category: 'suv', type: 'SUV', fuel: 'Petrol', transmission: 'Automatic', seats: 5, mileage: '18 kmpl', pricePerKm: 18, deposit: 5000, location: 'Andheri', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.7, reviews: 23, lat: 19.1197, lng: 72.8478, features: ['AC', 'Music', 'Power Steering'] },
-        { id: 'v2', name: 'Toyota Innova', brand: 'Toyota', category: 'suv', type: 'MPV', fuel: 'Diesel', transmission: 'Automatic', seats: 7, mileage: '15 kmpl', pricePerKm: 22, deposit: 8000, location: 'Powai', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1605218457331-9c4c79757c13?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.9, reviews: 45, lat: 19.1292, lng: 72.8461, features: ['AC', 'Music', 'Power Steering'] },
-        { id: 'v3', name: 'Honda City', brand: 'Honda', category: 'sedan', type: 'Sedan', fuel: 'Petrol', transmission: 'Manual', seats: 5, mileage: '20 kmpl', pricePerKm: 15, deposit: 4000, location: 'Bandra', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.5, reviews: 18, lat: 19.0541, lng: 72.8402, features: ['AC', 'Music'] },
-        { id: 'v4', name: 'Maruti Swift', brand: 'Maruti', category: 'hatchback', type: 'Hatchback', fuel: 'Petrol', transmission: 'Manual', seats: 4, mileage: '22 kmpl', pricePerKm: 12, deposit: 3000, location: 'Lower Parel', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1606629641977-598baa69fe52?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.3, reviews: 67, lat: 19.0054, lng: 72.8351, features: ['Music'] },
-        { id: 'v5', name: 'Kia Seltos', brand: 'Kia', category: 'suv', type: 'SUV', fuel: 'Petrol', transmission: 'Automatic', seats: 5, mileage: '17 kmpl', pricePerKm: 20, deposit: 6000, location: 'Goregaon', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.6, reviews: 31, lat: 19.1645, lng: 72.8493, features: ['AC', 'Music', 'Power Steering'] },
-        { id: 'v6', name: 'Tata Nexon', brand: 'Tata', category: 'suv', type: 'SUV', fuel: 'Petrol', transmission: 'Manual', seats: 5, mileage: '19 kmpl', pricePerKm: 14, deposit: 3500, location: 'Kurla', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1553535660-65563d25c1e3?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.4, reviews: 29, lat: 19.0661, lng: 72.8779, features: ['AC', 'Music'] },
-        { id: 'v7', name: 'Mahindra XUV500', brand: 'Mahindra', category: 'suv', type: 'SUV', fuel: 'Diesel', transmission: 'Automatic', seats: 7, mileage: '14 kmpl', pricePerKm: 25, deposit: 9000, location: 'Juhu', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.8, reviews: 12, lat: 19.0965, lng: 72.8268, features: ['AC', 'Music', 'Power Steering'] },
-        { id: 'v8', name: 'Hyundai Venue', brand: 'Hyundai', category: 'suv', type: 'SUV', fuel: 'Petrol', transmission: 'Manual', seats: 5, mileage: '18 kmpl', pricePerKm: 16, deposit: 4500, location: 'Worli', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1533473359331-0135ef1bcfb0?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.2, reviews: 15, lat: 19.0175, lng: 72.8176, features: ['AC', 'Music'] },
-      ]);
-    }
+    setBookings([
+      { id: 'b1', userId: 'u1', userName: 'Aarav Singh', userEmail: 'aarav@example.com', brand: 'Hyundai', vehicle: 'Hyundai Creta', city: 'Mumbai', date: '2026-04-20', amount: 3600, status: 'Confirmed', paymentMethod: 'UPI', createdAt: '2026-04-18T10:30:00Z' },
+      { id: 'b2', userId: 'u2', userName: 'Jiya Patel', userEmail: 'jiya@example.com', brand: 'Toyota', vehicle: 'Toyota Innova', city: 'Mumbai', date: '2026-04-23', amount: 4500, status: 'Confirmed', paymentMethod: 'Card', createdAt: '2026-04-19T14:20:00Z' },
+      { id: 'b3', userId: 'u3', userName: 'Rohan Mehta', userEmail: 'rohan@example.com', brand: 'Honda', vehicle: 'Honda City', city: 'Pune', date: '2026-04-26', amount: 3000, status: 'Confirmed', paymentMethod: 'UPI', createdAt: '2026-04-20T09:15:00Z' },
+      { id: 'b4', userId: 'u4', userName: 'Priya Sharma', userEmail: 'priya@example.com', brand: 'Maruti', vehicle: 'Maruti Swift', city: 'Mumbai', date: '2026-04-15', amount: 1200, status: 'Completed', paymentMethod: 'UPI', createdAt: '2026-04-10T11:00:00Z' },
+      { id: 'b5', userId: 'u5', userName: 'Vikram Singh', userEmail: 'vikram@example.com', brand: 'Kia', vehicle: 'Kia Seltos', city: 'Nashik', date: '2026-04-29', amount: 4200, status: 'Confirmed', paymentMethod: 'Card', createdAt: '2026-04-21T16:45:00Z' },
+      { id: 'b6', userId: 'u6', userName: 'Ananya Reddy', userEmail: 'ananya@example.com', brand: 'Tata', vehicle: 'Tata Nexon', city: 'Mumbai', date: '2026-05-02', amount: 2700, status: 'Cancelled', paymentMethod: 'UPI', createdAt: '2026-04-22T08:30:00Z' },
+      { id: 'b7', userId: 'u7', userName: 'Karan Joshi', userEmail: 'karan@example.com', brand: 'Hyundai', vehicle: 'Hyundai Venue', city: 'Pune', date: '2026-04-18', amount: 1100, status: 'Completed', paymentMethod: 'Card', createdAt: '2026-04-15T13:00:00Z' },
+      { id: 'b8', userId: 'u8', userName: 'Neha Gupta', userEmail: 'neha@example.com', brand: 'Mahindra', vehicle: 'Mahindra XUV500', city: 'Mumbai', date: '2026-05-05', amount: 5400, status: 'Confirmed', paymentMethod: 'UPI', createdAt: '2026-04-23T10:20:00Z' },
+    ]);
+    
+    setVehicles([
+      { id: 'v1', name: 'Hyundai Creta', brand: 'Hyundai', category: 'suv', type: 'SUV', fuel: 'Petrol', transmission: 'Automatic', seats: 5, mileage: '18 kmpl', pricePerKm: 18, deposit: 5000, location: 'Andheri', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.7, reviews: 23, lat: 19.1197, lng: 72.8478, features: ['AC', 'Music', 'Power Steering'] },
+      { id: 'v2', name: 'Toyota Innova', brand: 'Toyota', category: 'suv', type: 'MPV', fuel: 'Diesel', transmission: 'Automatic', seats: 7, mileage: '15 kmpl', pricePerKm: 22, deposit: 8000, location: 'Powai', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1605218457331-9c4c79757c13?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.9, reviews: 45, lat: 19.1292, lng: 72.8461, features: ['AC', 'Music', 'Power Steering'] },
+      { id: 'v3', name: 'Honda City', brand: 'Honda', category: 'sedan', type: 'Sedan', fuel: 'Petrol', transmission: 'Manual', seats: 5, mileage: '20 kmpl', pricePerKm: 15, deposit: 4000, location: 'Bandra', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.5, reviews: 18, lat: 19.0541, lng: 72.8402, features: ['AC', 'Music'] },
+      { id: 'v4', name: 'Maruti Swift', brand: 'Maruti', category: 'hatchback', type: 'Hatchback', fuel: 'Petrol', transmission: 'Manual', seats: 4, mileage: '22 kmpl', pricePerKm: 12, deposit: 3000, location: 'Lower Parel', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1606629641977-598baa69fe52?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.3, reviews: 67, lat: 19.0054, lng: 72.8351, features: ['Music'] },
+      { id: 'v5', name: 'Kia Seltos', brand: 'Kia', category: 'suv', type: 'SUV', fuel: 'Petrol', transmission: 'Automatic', seats: 5, mileage: '17 kmpl', pricePerKm: 20, deposit: 6000, location: ' Goregaon', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.6, reviews: 31, lat: 19.1645, lng: 72.8493, features: ['AC', 'Music', 'Power Steering'] },
+      { id: 'v6', name: 'Tata Nexon', brand: 'Tata', category: 'suv', type: 'SUV', fuel: 'Petrol', transmission: 'Manual', seats: 5, mileage: '19 kmpl', pricePerKm: 14, deposit: 3500, location: 'Kurla', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1553535660-65563d25c1e3?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.4, reviews: 29, lat: 19.0661, lng: 72.8779, features: ['AC', 'Music'] },
+      { id: 'v7', name: 'Mahindra XUV500', brand: 'Mahindra', category: 'suv', type: 'SUV', fuel: 'Diesel', transmission: 'Automatic', seats: 7, mileage: '14 kmpl', pricePerKm: 25, deposit: 9000, location: 'Juhu', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.8, reviews: 12, lat: 19.0965, lng: 72.8268, features: ['AC', 'Music', 'Power Steering'] },
+      { id: 'v8', name: 'Hyundai Venue', brand: 'Hyundai', category: 'suv', type: 'SUV', fuel: 'Petrol', transmission: 'Manual', seats: 5, mileage: '18 kmpl', pricePerKm: 16, deposit: 4500, location: 'Worli', city: 'Mumbai', image: 'https://images.unsplash.com/photo-1533473359331-0135ef1bcfb0?auto=format&fit=crop&w=1200&q=80', agency: user.name, agencyId: user.id, rating: 4.2, reviews: 15, lat: 19.0175, lng: 72.8176, features: ['AC', 'Music'] },
+    ]);
   }, [user]);
 
   if (!user || user.role !== 'agency') {
@@ -130,7 +126,7 @@ const AgencyDashboard = () => {
     { vehicle: 'Toyota Innova', due: '2026-04-28', daysLeft: 5, type: 'Full Service' },
   ];
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('');
     if (!form.name.trim() || !form.brand.trim()) { setStatus('Fill required fields.'); return; }
@@ -140,24 +136,17 @@ const AgencyDashboard = () => {
       type: form.type, fuel: form.fuel as 'Petrol', transmission: form.transmission as 'Manual', seats: Number(form.seats),
       mileage: form.mileage, pricePerKm: Number(form.pricePerKm), deposit: Number(form.deposit),
       location: form.location, city: form.city, image: form.image, agency: user.name, agencyId: user.id,
-      rating: 4.7, reviews: 0, lat: 19.0760, lng: 72.8777, features: ['AC', 'Music'],
+      rating: 4.7, reviews: 0, lat: 19.0760 + Math.random() * 0.1, lng: 72.8777 + Math.random() * 0.1, features: ['AC', 'Music'],
     };
-    try {
-      const res = await fetch('/api/vehicles', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(newVehicle) });
-      const data = await res.json();
-      if (data.success || res.ok) { 
-        setVehicles(prev => [newVehicle as unknown as Vehicle, ...prev]); 
-        setFleetCount(prev => prev + 1);
-        setStatus('Vehicle added!');
-        setForm({
-          name: '', brand: '', category: 'sedan', type: 'Sedan', fuel: 'Petrol', transmission: 'Manual',
-          seats: '4', mileage: '20 kmpl', pricePerKm: '20', deposit: '5000', city: 'Mumbai',
-          location: 'Lower Parel', image: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1200&q=80',
-        });
-      }
-      else setStatus(data.error || 'Failed');
-    } catch { setStatus('Server error.'); }
-    finally { setIsSaving(false); }
+    setVehicles(prev => [newVehicle as Vehicle, ...prev]); 
+    setFleetCount(prev => prev + 1);
+    setStatus('Vehicle added!');
+    setForm({
+      name: '', brand: '', category: 'sedan', type: 'Sedan', fuel: 'Petrol', transmission: 'Manual',
+      seats: '4', mileage: '20 kmpl', pricePerKm: '20', deposit: '5000', city: 'Mumbai',
+      location: 'Lower Parel', image: 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=1200&q=80',
+    });
+    setIsSaving(false);
   };
 
   const sendChat = () => {
@@ -213,19 +202,38 @@ const AgencyDashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
             <div className={`lg:col-span-8 rounded-3xl border p-5 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <div className={darkMode ? 'bg-slate-800 border border-slate-700 rounded-xl p-4' : 'bg-slate-50 border border-slate-200 rounded-xl p-4'}><p className={`text-xs uppercase ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Earnings</p><p className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-900'}`}>₹{totalEarnings.toLocaleString('en-IN')}</p></div>
+                <div className={darkMode ? 'bg-slate-800 border border-slate-700 rounded-xl p-4' : 'bg-slate-50 border border-slate-200 rounded-xl p-4'}><p className={`text-xs uppercase ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Total Earnings</p><p className={`text-2xl font-black ${darkMode ? 'text-white' : 'text-slate-900'}`}>₹{totalEarnings.toLocaleString('en-IN')}</p></div>
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4"><p className="text-xs uppercase text-emerald-600">Active Rentals</p><p className="text-2xl font-black text-emerald-700">{activeRentals}</p></div>
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-4"><p className="text-xs uppercase text-blue-600">Customers</p><p className="text-2xl font-black text-blue-700">{uniqueCustomers}</p></div>
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4"><p className="text-xs uppercase text-amber-600">Rating</p><p className="text-2xl font-black text-amber-700">{rating.toFixed(1)}</p></div>
+              </div>
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className={darkMode ? 'bg-slate-800 border border-slate-700 rounded-xl p-4' : 'bg-slate-50 border border-slate-200 rounded-xl p-4'}>
+                  <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>Monthly Revenue</h3>
+                  <div className="mt-3 space-y-2">
+                    <div className="flex justify-between items-center"><span className={darkMode ? 'text-slate-400' : 'text-slate-600'}>April 2026</span><span className="font-bold text-emerald-600">₹18,500</span></div>
+                    <div className="flex justify-between items-center"><span className={darkMode ? 'text-slate-400' : 'text-slate-600'}>May 2026</span><span className="font-bold text-emerald-600">₹24,200</span></div>
+                    <div className="flex justify-between items-center"><span className={darkMode ? 'text-slate-400' : 'text-slate-600'}>June 2026</span><span className="font-bold text-emerald-600">₹21,900</span></div>
+                  </div>
+                </div>
+                <div className={darkMode ? 'bg-slate-800 border border-slate-700 rounded-xl p-4' : 'bg-slate-50 border border-slate-200 rounded-xl p-4'}>
+                  <h3 className={`font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>Fleet Vehicles</h3>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {vehicles.slice(0, 6).map(v => (
+                      <span key={v.id} className={`text-xs px-2 py-1 rounded-full ${darkMode ? 'bg-slate-700 text-slate-300' : 'bg-slate-200 text-slate-700'}`}>{v.name}</span>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div className="mt-4">
                 <h3 className={`font-bold text-lg ${darkMode ? 'text-white' : 'text-slate-900'}`}>Recent Bookings</h3>
                 {bookings.length === 0 ? <p className={darkMode ? 'text-slate-400 mt-2' : 'text-slate-500 mt-2'}>No bookings yet.</p> : (
                   <div className="mt-2 space-y-2">
                     {bookings.slice(-5).reverse().map(b => (
-                      <div key={b.id} className={`flex justify-between items-center p-3 rounded-xl border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
-                        <div><p className={`font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{b.vehicle}</p><p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{b.userName} • {b.userEmail}</p></div>
-                        <div className="text-right"><p className="font-bold text-primary-600">₹{b.amount}</p><span className={`text-[10px] px-2 py-0.5 rounded-full ${b.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-700' : darkMode ? 'bg-slate-700 text-slate-400' : 'bg-slate-100 text-slate-500'}`}>{b.status}</span></div>
+                      <div key={b.id} className={`flex items-center gap-3 p-3 rounded-xl border ${darkMode ? 'bg-slate-800 border-slate-700' : 'bg-slate-50 border-slate-200'}`}>
+                        <img src={b.brand === 'Hyundai' ? 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=100&q=60' : b.brand === 'Toyota' ? 'https://images.unsplash.com/photo-1605218457331-9c4c79757c13?auto=format&fit=crop&w=100&q=60' : b.brand === 'Honda' ? 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=100&q=60' : b.brand === 'Maruti' ? 'https://images.unsplash.com/photo-1606629641977-598baa69fe52?auto=format&fit=crop&w=100&q=60' : b.brand === 'Kia' ? 'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?auto=format&fit=crop&w=100&q=60' : b.brand === 'Tata' ? 'https://images.unsplash.com/photo-1553535660-65563d25c1e3?auto=format&fit=crop&w=100&q=60' : b.brand === 'Mahindra' ? 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=100&q=60' : 'https://images.unsplash.com/photo-1525609004556-c46c7d6cf023?auto=format&fit=crop&w=100&q=60'} alt={b.vehicle} className="w-12 h-12 rounded-lg object-cover" />
+                        <div className="flex-1"><p className={`font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{b.vehicle}</p><p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{b.userName} • {b.city} • {b.date}</p></div>
+                        <div className="text-right"><p className="font-bold text-primary-600">₹{b.amount}</p><span className={`text-[10px] px-2 py-0.5 rounded-full ${b.status === 'Confirmed' ? 'bg-emerald-100 text-emerald-700' : b.status === 'Completed' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700'}`}>{b.status}</span></div>
                       </div>
                     ))}
                   </div>
