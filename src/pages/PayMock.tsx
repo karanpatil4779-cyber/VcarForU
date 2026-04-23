@@ -40,7 +40,7 @@ const PayMock = () => {
     );
   }
 
-  const rental = vehicle.pricePerDay;
+  const rental = vehicle.pricePerKm;
   const deposit = vehicle.deposit;
   const gst = Math.floor(rental * 0.18);
   const total = rental + deposit + gst;

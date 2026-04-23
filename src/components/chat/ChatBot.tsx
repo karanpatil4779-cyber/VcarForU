@@ -88,7 +88,7 @@ export default function ChatBot() {
       const top2 = filtered.slice(0, 2);
       if (top2.length >= 2) {
         return {
-          text: `⚖️ **Live Comparison**:\n\n**${top2[0].name}** vs **${top2[1].name}**\n\n💰 Price: ₹${top2[0].pricePerDay} vs ₹${top2[1].pricePerDay}\n⛽ Fuel: ${top2[0].fuel} vs ${top2[1].fuel}\n⚙️ Trans: ${top2[0].transmission} vs ${top2[1].transmission}\n⭐ Rating: ${top2[0].rating} vs ${top2[1].rating}\n\n🏆 **Winner:** ${top2[0].pricePerDay < top2[1].pricePerDay ? top2[0].name : top2[1].name} is the better value!`,
+          text: `⚖️ **Live Comparison**:\n\n**${top2[0].name}** vs **${top2[1].name}**\n\n💰 Price: ₹${top2[0].pricePerKm}/km vs ₹${top2[1].pricePerKm}/km\n⛽ Fuel: ${top2[0].fuel} vs ${top2[1].fuel}\n⚙️ Trans: ${top2[0].transmission} vs ${top2[1].transmission}\n⭐ Rating: ${top2[0].rating} vs ${top2[1].rating}\n\n🏆 **Winner:** ${top2[0].pricePerKm < top2[1].pricePerKm ? top2[0].name : top2[1].name} is the better value!`,
           options: [
             { label: `Book ${top2[0].name}`, value: `/vehicle/${top2[0].id}`, action: 'navigate' },
             { label: `Book ${top2[1].name}`, value: `/vehicle/${top2[1].id}`, action: 'navigate' }
@@ -101,14 +101,14 @@ export default function ChatBot() {
     // 3. BUDGET & DISCOVERY ENGINE
     if (text.includes('cheap') || text.includes('under')) {
       const budgetMatch = text.match(/\d+/);
-      const budget = budgetMatch ? parseInt(budgetMatch[0]) : 2000;
-      const affordable = vehicles.filter(v => v.pricePerDay <= budget).sort((a, b) => a.pricePerDay - b.pricePerDay);
+      const budget = budgetMatch ? parseInt(budgetMatch[0]) : 20;
+      const affordable = vehicles.filter(v => v.pricePerKm <= budget).sort((a, b) => a.pricePerKm - b.pricePerKm);
       
       if (affordable.length > 0) {
         return {
-          text: `💰 I found ${affordable.length} cars under ₹${budget}. Here are the best deals:`,
+          text: `💰 I found ${affordable.length} cars under ₹${budget}/km. Here are the best deals:`,
           options: affordable.slice(0, 3).map(v => ({
-            label: `${v.name} - ₹${v.pricePerDay}/day (⭐ ${v.rating})`,
+            label: `${v.name} - ₹${v.pricePerKm}/km (⭐ ${v.rating})`,
             value: `/vehicle/${v.id}`,
             action: 'navigate',
             icon: ShieldCheck
@@ -126,12 +126,34 @@ export default function ChatBot() {
       };
     }
 
+    // 4.5 MAP NAVIGATION
+    if (text.includes('map') || text.includes('heat map')) {
+      return {
+        text: "🗺️ Opening Heat Map to show vehicles, stations, and mechanics near you...",
+        options: [{ label: 'Go to Map', value: '/dashboard/map', action: 'navigate' }],
+        quickReplies: ['Find Mechanics Near Me', 'Show Stations']
+      };
+    }
+
     // 5. NEAR ME / LOCATION INTELLIGENCE
+    if (text.includes('mechanic') || text.includes('repair')) {
+      return {
+        text: "🔧 Finding nearest mechanics in your area...",
+        options: mechanics.slice(0, 3).map(m => ({
+          label: `${m.name} (${m.distance}) - 📞 ${m.contact}`,
+          value: m.contact,
+          action: 'call',
+          icon: ShieldCheck
+        })),
+        quickReplies: ['Show on Map', 'Emergency Roadside']
+      };
+    }
+
     if (text.includes('near me') || text.includes('nearby') || text.includes('close')) {
       return {
         text: "📍 Detecting your location...\nI found 3 highly-rated cars within 2 km of you.",
         options: vehicles.slice(0, 3).map(v => ({
-          label: `${v.name} (1.2 km away) - ₹${v.pricePerDay}/day`,
+          label: `${v.name} (1.2 km away) - ₹${v.pricePerKm}/km`,
           value: `/vehicle/${v.id}`,
           action: 'navigate',
           icon: Navigation
@@ -146,7 +168,7 @@ export default function ChatBot() {
       return {
         text: "🧠 **AI Suggestion:** Since you're planning a trip, I highly recommend an SUV for better comfort on highways and hilly terrain. Expected fuel cost: ~₹1,500.",
         options: suvs.slice(0, 2).map(v => ({
-          label: `${v.name} - ₹${v.pricePerDay}/day`,
+          label: `${v.name} - ₹${v.pricePerKm}/km`,
           value: `/vehicle/${v.id}`,
           action: 'navigate',
           icon: Zap

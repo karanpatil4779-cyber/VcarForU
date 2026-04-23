@@ -17,7 +17,7 @@ const Home = () => {
 
   useEffect(() => {
     fetch('/api/vehicles').then(r => r.json()).then(data => {
-      setApiVehicles(data.filter((v: any) => v.rating >= 4.5).slice(0, 3));
+      setApiVehicles(data.filter((v: Vehicle) => v.rating >= 4.5).slice(0, 3));
     }).catch(() => {});
   }, []);
 

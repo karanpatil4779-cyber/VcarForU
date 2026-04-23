@@ -21,7 +21,7 @@ const AgencyDashboard = () => {
     transmission: 'Manual',
     seats: '4',
     mileage: '20 kmpl',
-    pricePerDay: '1200',
+    pricePerKm: '20',
     deposit: '5000',
     city: 'Mumbai',
     location: 'Lower Parel',
@@ -91,7 +91,7 @@ const AgencyDashboard = () => {
       transmission: form.transmission,
       seats: Number(form.seats),
       mileage: form.mileage,
-      pricePerDay: Number(form.pricePerDay),
+      pricePerKm: Number(form.pricePerKm),
       deposit: Number(form.deposit),
       location: form.location,
       city: form.city,
@@ -122,7 +122,7 @@ const AgencyDashboard = () => {
           transmission: 'Manual',
           seats: '4',
           mileage: '20 kmpl',
-          pricePerDay: '1200',
+          pricePerKm: '20',
           deposit: '5000',
           city: 'Mumbai',
           location: 'Lower Parel',
@@ -182,7 +182,7 @@ const AgencyDashboard = () => {
                 <div className="mt-2 space-y-2 max-h-48 overflow-auto">
                   {vehicles.map((v) => (
                     <div key={v.id} className="border border-slate-200 rounded-xl p-2 bg-white">
-                      <div className="flex justify-between text-sm"><span className="font-semibold">{v.name}</span><span className="font-semibold text-primary-600">₹{v.pricePerDay}/day</span></div>
+                      <div className="flex justify-between text-sm"><span className="font-semibold">{v.name}</span><span className="font-semibold text-primary-600">₹{v.pricePerKm}/km</span></div>
                       <p className="text-xs text-slate-500">{v.brand}  {v.city}</p>
                     </div>
                   ))}
@@ -228,7 +228,7 @@ const AgencyDashboard = () => {
                 <input placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="p-2 border rounded-md" />
                 <input placeholder="Location" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} className="p-2 border rounded-md" />
               </div>
-              <div className="grid grid-cols-2 gap-2"><input type="number" placeholder="Price/day" value={form.pricePerDay} onChange={(e) => setForm({ ...form, pricePerDay: e.target.value })} className="p-2 border rounded-md" /><input type="number" placeholder="Deposit" value={form.deposit} onChange={(e) => setForm({ ...form, deposit: e.target.value })} className="p-2 border rounded-md" /></div>
+              <div className="grid grid-cols-2 gap-2"><input type="number" placeholder="Price/km" value={form.pricePerKm} onChange={(e) => setForm({ ...form, pricePerKm: e.target.value })} className="p-2 border rounded-md" /><input type="number" placeholder="Deposit" value={form.deposit} onChange={(e) => setForm({ ...form, deposit: e.target.value })} className="p-2 border rounded-md" /></div>
               <div className="grid grid-cols-2 gap-2"><select value={form.fuel} onChange={(e) => setForm({ ...form, fuel: e.target.value })} className="p-2 border rounded-md"><option>Petrol</option><option>Diesel</option><option>Electric</option></select><select value={form.transmission} onChange={(e) => setForm({ ...form, transmission: e.target.value })} className="p-2 border rounded-md"><option>Manual</option><option>Automatic</option></select></div>
               <input placeholder="Image URL" value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} className="p-2 border rounded-md w-full" />
               {status && <p className="text-sm text-red-600">{status}</p>}

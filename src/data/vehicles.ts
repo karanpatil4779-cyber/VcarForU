@@ -3,25 +3,25 @@ import type { Vehicle } from '../types/vehicle';
 // 20 Agencies x 13 Vehicles each (4 cars + 7 bikes + 2 electric) = 260 vehicles in Mumbai
 
 const carModels = [
-  { name: 'Honda City', brand: 'Honda', category: 'sedan' as const, price: 2500, deposit: 5000 },
-  { name: 'Maruti Swift', brand: 'Maruti', category: 'hatchback' as const, price: 1500, deposit: 3000 },
-  { name: 'Hyundai Creta', brand: 'Hyundai', category: 'suv' as const, price: 3200, deposit: 8000 },
-  { name: 'Toyota Innova', brand: 'Toyota', category: 'suv' as const, price: 4500, deposit: 10000 },
+  { name: 'Honda City', brand: 'Honda', category: 'sedan' as const, price: 20, deposit: 5000 },
+  { name: 'Maruti Swift', brand: 'Maruti', category: 'hatchback' as const, price: 15, deposit: 3000 },
+  { name: 'Hyundai Creta', brand: 'Hyundai', category: 'suv' as const, price: 25, deposit: 8000 },
+  { name: 'Toyota Innova', brand: 'Toyota', category: 'suv' as const, price: 30, deposit: 10000 },
 ];
 
 const bikeModels = [
-  { name: 'Honda Activa', brand: 'Honda', category: 'scooter' as const, price: 350, deposit: 1000 },
-  { name: 'TVS Jupiter', brand: 'TVS', category: 'scooter' as const, price: 380, deposit: 1000 },
-  { name: 'Suzuki Access', brand: 'Suzuki', category: 'scooter' as const, price: 400, deposit: 1000 },
-  { name: 'Apache RTR 160', brand: 'TVS', category: 'sports-bike' as const, price: 600, deposit: 2000 },
-  { name: 'Royal Enfield Classic', brand: 'Royal Enfield', category: 'touring-bike' as const, price: 800, deposit: 3000 },
-  { name: 'Bajaj Pulsar', brand: 'Bajaj', category: 'sports-bike' as const, price: 550, deposit: 2000 },
-  { name: 'Hero Glamour', brand: 'Hero', category: 'commuter-bike' as const, price: 450, deposit: 1500 },
+  { name: 'Honda Activa', brand: 'Honda', category: 'scooter' as const, price: 5, deposit: 1000 },
+  { name: 'TVS Jupiter', brand: 'TVS', category: 'scooter' as const, price: 5, deposit: 1000 },
+  { name: 'Suzuki Access', brand: 'Suzuki', category: 'scooter' as const, price: 6, deposit: 1000 },
+  { name: 'Apache RTR 160', brand: 'TVS', category: 'sports-bike' as const, price: 8, deposit: 2000 },
+  { name: 'Royal Enfield Classic', brand: 'Royal Enfield', category: 'touring-bike' as const, price: 10, deposit: 3000 },
+  { name: 'Bajaj Pulsar', brand: 'Bajaj', category: 'sports-bike' as const, price: 7, deposit: 2000 },
+  { name: 'Hero Glamour', brand: 'Hero', category: 'commuter-bike' as const, price: 6, deposit: 1500 },
 ];
 
 const electricModels = [
-  { name: 'Ather 450X', brand: 'Ather', category: 'electric' as const, price: 700, deposit: 5000 },
-  { name: 'Ola S1 Pro', brand: 'Ola', category: 'electric' as const, price: 650, deposit: 5000 },
+  { name: 'Ather 450X', brand: 'Ather', category: 'electric' as const, price: 6, deposit: 5000 },
+  { name: 'Ola S1 Pro', brand: 'Ola', category: 'electric' as const, price: 5, deposit: 5000 },
 ];
 
 const agencyLocations = [
@@ -63,7 +63,7 @@ const generateVehicles = (): Vehicle[] => {
         transmission: idx % 2 === 0 ? 'Automatic' : 'Manual',
         seats: 5,
         mileage: car.category === 'suv' ? '14 kmpl' : '20 kmpl',
-        pricePerDay: car.price,
+        pricePerKm: car.price,
         deposit: car.deposit,
         location: agency.location,
         city: 'Mumbai',
@@ -90,7 +90,7 @@ const generateVehicles = (): Vehicle[] => {
         transmission: 'Manual',
         seats: 2,
         mileage: bike.category === 'scooter' ? '55 kmpl' : '40 kmpl',
-        pricePerDay: bike.price,
+        pricePerKm: bike.price,
         deposit: bike.deposit,
         location: agency.location,
         city: 'Mumbai',
@@ -117,7 +117,7 @@ const generateVehicles = (): Vehicle[] => {
         transmission: 'Auto',
         seats: 2,
         mileage: '70 km/full charge',
-        pricePerDay: e.price,
+        pricePerKm: e.price,
         deposit: e.deposit,
         location: agency.location,
         city: 'Mumbai',

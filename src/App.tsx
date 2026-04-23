@@ -11,6 +11,7 @@ const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Login = lazy(() => import('./pages/Login'));
 const VehicleDetails = lazy(() => import('./pages/VehicleDetails'));
 const PayMock = lazy(() => import('./pages/PayMock'));
+const JourneyTracker = lazy(() => import('./pages/JourneyTracker'));
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess'));
 const PaymentFailure = lazy(() => import('./pages/PaymentFailure'));
 const AgencyDashboard = lazy(() => import('./pages/AgencyDashboard'));
@@ -164,6 +165,7 @@ function App() {
             <Route path="/search" element={<SearchResults />} />
             <Route path="/vehicle/:id" element={<VehicleDetails />} />
             <Route path="/checkout/:id" element={<ProtectedRoute><PayMock /></ProtectedRoute>} />
+            <Route path="/journey/:id" element={<ProtectedRoute><JourneyTracker /></ProtectedRoute>} />
             <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
             <Route path="/payment-failure" element={<ProtectedRoute><PaymentFailure /></ProtectedRoute>} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

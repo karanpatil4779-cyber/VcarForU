@@ -23,7 +23,7 @@ export interface Vehicle {
   transmission: TransmissionType;
   seats: number;
   mileage: string;
-  pricePerDay: number;
+  pricePerKm: number;
   pricePerHour?: number;
   deposit: number;
   location: string;

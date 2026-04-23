@@ -139,8 +139,8 @@ const VehicleDetails = () => {
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Total Price</p>
                   <div className="flex items-baseline gap-1">
-                  <span className="font-heading text-4xl font-bold text-slate-900">₹{vehicle.pricePerDay}</span>
-                    <span className="font-body text-sm text-slate-500">/day</span>
+                  <span className="font-heading text-4xl font-bold text-slate-900">₹{vehicle.pricePerKm}</span>
+                  <span className="font-body text-sm text-slate-500">/km</span>
                   </div>
                 </div>
               </div>
@@ -162,8 +162,8 @@ const VehicleDetails = () => {
 
               <div className="py-6 border-t border-slate-100 space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500 font-medium">1 Day Rental</span>
-                  <span className="font-bold text-slate-900">₹{vehicle.pricePerDay}</span>
+                  <span className="text-slate-500 font-medium">Estimated Per Km</span>
+                  <span className="font-bold text-slate-900">₹{vehicle.pricePerKm}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-500 font-medium">Refundable Deposit</span>
@@ -171,7 +171,7 @@ const VehicleDetails = () => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-slate-500 font-medium">Taxes & Fees (18% GST)</span>
-                  <span className="font-bold text-slate-900">₹{Math.floor(vehicle.pricePerDay * 0.18)}</span>
+                  <span className="font-bold text-slate-900">₹{Math.floor(vehicle.pricePerKm * 0.18)}</span>
                 </div>
               </div>
 
@@ -179,15 +179,15 @@ const VehicleDetails = () => {
                 <div className="flex justify-between items-center mb-1">
                   <span className="font-heading text-lg font-bold text-slate-900">Total Due Today</span>
                   <span className="font-heading text-2xl font-bold text-primary-600">
-                    ₹{vehicle.pricePerDay + vehicle.deposit + Math.floor(vehicle.pricePerDay * 0.18)}
+                    ₹{vehicle.pricePerKm + vehicle.deposit + Math.floor(vehicle.pricePerKm * 0.18)}
                   </span>
                 </div>
                 <p className="text-[10px] text-right text-emerald-600 font-bold uppercase tracking-wider">Fully Refundable Deposit Included</p>
               </div>
 
-              <Link to={`/checkout/${vehicle.id}`}>
+              <Link to={`/journey/${vehicle.id}`}>
                 <Button size="lg" className="w-full rounded-2xl shadow-primary-200 h-14 text-lg">
-                  Proceed to Pay
+                  Start Journey Meter
                 </Button>
               </Link>
               <div className="mt-4 flex justify-center gap-3">

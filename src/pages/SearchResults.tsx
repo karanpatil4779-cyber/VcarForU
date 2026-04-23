@@ -35,7 +35,7 @@ const SearchResults = () => {
           const data = await response.json();
           setApiVehicles(data);
         }
-      } catch (err) {
+      } catch {
         // Silently handle error or log
       }
     };
@@ -71,7 +71,7 @@ const SearchResults = () => {
       // Budget
       let matchesBudget = true;
       if (filters.budget !== 'all') {
-        const p = v.pricePerDay;
+        const p = v.pricePerKm;
         if (filters.budget === '0-500') matchesBudget = p <= 500;
         else if (filters.budget === '500-1500') matchesBudget = p > 500 && p <= 1500;
         else if (filters.budget === '1500-3000') matchesBudget = p > 1500 && p <= 3000;

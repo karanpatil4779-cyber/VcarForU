@@ -3,8 +3,9 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Link } from 'react-router-dom';
 import type { Vehicle, City } from '../../types/vehicle';
-import { Star, MapPin, Navigation, IndianRupee, LocateFixed } from 'lucide-react';
+import { Star, MapPin, Navigation, IndianRupee, LocateFixed, Fuel, Zap } from 'lucide-react';
 import Button from '../ui/Button';
+import { stations } from '../../data/stations';
 
 // Fix for default marker icons in Leaflet + React
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -104,6 +105,35 @@ const createCityIcon = (name: string, count: number) => {
   });
 };
 
+const createStationIcon = (type: string) => {
+  const isElectric = type === 'electric';
+  const color = isElectric ? '#10b981' : '#f59e0b';
+  const bgColor = isElectric ? '#ecfdf5' : '#fffbeb';
+  const emoji = isElectric ? '⚡' : '⛽';
+  return L.divIcon({
+    className: 'custom-station-marker',
+    html: `
+      <div style="
+        background: ${bgColor};
+        border: 2px solid ${color};
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        font-size: 14px;
+      ">
+        ${emoji}
+      </div>
+    `,
+    iconSize: [28, 28],
+    iconAnchor: [14, 14],
+    popupAnchor: [0, -14],
+  });
+};
+
 // Component to fly map to new center/zoom
 const FlyToHandler: React.FC<{ center: [number, number]; zoom: number }> = ({ center, zoom }) => {
   const map = useMap();
@@ -194,7 +224,7 @@ const MapView: React.FC<MapViewProps> = ({
           <Marker 
             key={vehicle.id} 
             position={[vehicle.lat, vehicle.lng]}
-            icon={createVehicleIcon(vehicle.pricePerDay, isBikeCategory(vehicle.category))}
+            icon={createVehicleIcon(vehicle.pricePerKm, isBikeCategory(vehicle.category))}
           >
             <Popup className="custom-popup">
               <div className="w-72 p-1">
@@ -218,8 +248,8 @@ const MapView: React.FC<MapViewProps> = ({
                     <p className="font-body text-[11px] text-slate-500">{vehicle.agency}</p>
                   </div>
                   <div className="text-right shrink-0 ml-2">
-                    <p className="font-heading font-bold text-primary-600 text-sm">₹{vehicle.pricePerDay}</p>
-                    <p className="font-body text-[9px] text-slate-400 tracking-wide">/day</p>
+                    <p className="font-heading font-bold text-primary-600 text-sm">₹{vehicle.pricePerKm}</p>
+                    <p className="font-body text-[9px] text-slate-400 tracking-wide">/km</p>
                   </div>
                 </div>
                 
@@ -249,6 +279,28 @@ const MapView: React.FC<MapViewProps> = ({
                     <Navigation className="mr-1.5 h-3.5 w-3.5" /> View & Book
                   </Button>
                 </Link>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+
+        {/* Render Stations */}
+        {stations.map((station) => (
+          <Marker 
+            key={station.id} 
+            position={[station.lat, station.lng]}
+            icon={createStationIcon(station.type)}
+          >
+            <Popup className="custom-popup">
+              <div className="w-48 p-2 text-center">
+                <div className="mb-2">
+                   {station.type === 'electric' ? <Zap className="h-6 w-6 mx-auto text-emerald-500" /> : <Fuel className="h-6 w-6 mx-auto text-amber-500" />}
+                </div>
+                <h3 className="font-heading font-bold text-sm text-slate-900">{station.name}</h3>
+                <p className="font-body text-[11px] text-slate-500">{station.address}</p>
+                <a href={`https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`} target="_blank" rel="noreferrer" className="mt-3 w-full bg-slate-900 text-white py-1.5 rounded-lg text-xs font-bold inline-block">
+                  Navigate
+                </a>
               </div>
             </Popup>
           </Marker>
@@ -283,11 +335,15 @@ const MapView: React.FC<MapViewProps> = ({
           </div>
           <div className="flex items-center gap-3 text-[11px] font-body font-medium text-slate-700">
             <div className="px-2 py-0.5 bg-primary-100 text-primary-700 border border-primary-300 rounded-md text-[9px] font-bold">₹</div>
-            <span>Cars (price/day)</span>
+            <span>Cars (price/km)</span>
           </div>
           <div className="flex items-center gap-3 text-[11px] font-body font-medium text-slate-700">
             <div className="px-2 py-0.5 bg-violet-100 text-violet-700 border border-violet-300 rounded-md text-[9px] font-bold">₹</div>
             <span>Bikes & Scooters</span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px] font-body font-medium text-slate-700">
+            <div className="w-5 h-5 flex items-center justify-center bg-amber-50 border border-amber-500 rounded-full text-[10px]">⛽</div>
+            <span>Fuel / EV Charging</span>
           </div>
         </div>
       </div>

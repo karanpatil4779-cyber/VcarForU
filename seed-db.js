@@ -29,15 +29,15 @@ async function seedDB() {
 
     // 3. Insert 8 Vehicles
     await connection.execute(`
-      INSERT IGNORE INTO vehicles (id, agency_id, name, brand, category, type, fuel, transmission, seats, mileage, price_per_day, deposit, city) VALUES 
-      ('v-1', 'a-1', 'Tata Nexon', 'Tata', 'suv', 'car', 'Petrol', 'Automatic', 5, '17 kmpl', 1500, 3000, 'Mumbai'),
-      ('v-2', 'a-1', 'Hyundai Creta', 'Hyundai', 'suv', 'car', 'Diesel', 'Manual', 5, '21 kmpl', 1800, 4000, 'Mumbai'),
-      ('v-3', 'a-2', 'Honda City', 'Honda', 'sedan', 'car', 'Petrol', 'Automatic', 5, '18 kmpl', 1600, 3500, 'Delhi'),
-      ('v-4', 'a-2', 'Maruti Swift', 'Maruti', 'hatchback', 'car', 'Petrol', 'Manual', 5, '23 kmpl', 1200, 2500, 'Delhi'),
-      ('v-5', 'a-3', 'Royal Enfield Classic', 'Royal Enfield', 'cruiser', 'bike', 'Petrol', 'Manual', 2, '35 kmpl', 800, 1500, 'Goa'),
-      ('v-6', 'a-3', 'Honda Activa', 'Honda', 'scooter', 'bike', 'Petrol', 'Automatic', 2, '45 kmpl', 400, 1000, 'Goa'),
-      ('v-7', 'a-1', 'Mahindra Thar', 'Mahindra', 'suv', 'car', 'Diesel', 'Manual', 4, '15 kmpl', 2500, 5000, 'Mumbai'),
-      ('v-8', 'a-2', 'Toyota Innova', 'Toyota', 'suv', 'car', 'Diesel', 'Automatic', 7, '14 kmpl', 2200, 5000, 'Delhi')
+      INSERT IGNORE INTO vehicles (id, agency_id, name, brand, category, type, fuel, transmission, seats, mileage, price_per_km, deposit, city) VALUES 
+      ('v-1', 'a-1', 'Tata Nexon', 'Tata', 'suv', 'car', 'Petrol', 'Automatic', 5, '17 kmpl', 15, 3000, 'Mumbai'),
+      ('v-2', 'a-1', 'Hyundai Creta', 'Hyundai', 'suv', 'car', 'Diesel', 'Manual', 5, '21 kmpl', 18, 4000, 'Mumbai'),
+      ('v-3', 'a-2', 'Honda City', 'Honda', 'sedan', 'car', 'Petrol', 'Automatic', 5, '18 kmpl', 16, 3500, 'Delhi'),
+      ('v-4', 'a-2', 'Maruti Swift', 'Maruti', 'hatchback', 'car', 'Petrol', 'Manual', 5, '23 kmpl', 12, 2500, 'Delhi'),
+      ('v-5', 'a-3', 'Royal Enfield Classic', 'Royal Enfield', 'cruiser', 'bike', 'Petrol', 'Manual', 2, '35 kmpl', 10, 1500, 'Goa'),
+      ('v-6', 'a-3', 'Honda Activa', 'Honda', 'scooter', 'bike', 'Petrol', 'Automatic', 2, '45 kmpl', 5, 1000, 'Goa'),
+      ('v-7', 'a-1', 'Mahindra Thar', 'Mahindra', 'suv', 'car', 'Diesel', 'Manual', 4, '15 kmpl', 25, 5000, 'Mumbai'),
+      ('v-8', 'a-2', 'Toyota Innova', 'Toyota', 'suv', 'car', 'Diesel', 'Automatic', 7, '14 kmpl', 22, 5000, 'Delhi')
     `);
 
     // 4. Insert 2 Bookings
