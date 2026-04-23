@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
-import { CheckCircle2, ArrowRight, Star } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Star, MessageCircle, Send, X } from 'lucide-react';
 import Button from '../components/ui/Button';
 import { getBookingById, getLastBookingId, saveFeedback } from '../utils/bookings';
 import { useAuth } from '../context/AuthContext';
@@ -10,6 +10,9 @@ const PaymentSuccess = () => {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [saved, setSaved] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [chatMessages, setChatMessages] = useState<{from: 'agency'|'customer'; text: string; time: string}[]>([]);
+  const [chatInput, setChatInput] = useState('');
 
   const lastBookingId = getLastBookingId();
   const booking = lastBookingId ? getBookingById(lastBookingId) : null;
@@ -24,6 +27,15 @@ const PaymentSuccess = () => {
       createdAt: new Date().toISOString(),
     });
     setSaved(true);
+  };
+
+  const sendChatMessage = () => {
+    if (!chatInput.trim()) return;
+    setChatMessages([...chatMessages, { from: 'customer', text: chatInput, time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    setChatInput('');
+    setTimeout(() => {
+      setChatMessages(prev => [...prev, { from: 'agency', text: 'Hi! Thanks for reaching out. How can I help you with your booking?', time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }]);
+    }, 1000);
   };
 
   return (
@@ -90,6 +102,9 @@ const PaymentSuccess = () => {
                 View Booking <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
+            <Button onClick={() => setShowChat(true)} size="lg" variant="secondary" className="w-full rounded-2xl">
+              <MessageCircle className="w-5 h-5 mr-2" /> Chat with Agency
+            </Button>
             <Link to="/">
               <Button variant="outline" size="lg" className="w-full rounded-2xl">
                 Back to Home
@@ -98,7 +113,44 @@ const PaymentSuccess = () => {
           </div>
         </div>
 
-        <p className="font-body text-[11px] text-slate-400 tracking-wide mt-6">Secured by PayU &bull; Booking ref stored locally</p>
+<p className="font-body text-[11px] text-slate-400 tracking-wide mt-6">Secured by PayU &bull; Booking ref stored locally</p>
+        </div>
+
+        {showChat && (
+          <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl w-full max-w-lg h-[600px] flex flex-col">
+              <div className="p-4 border-b border-slate-200 flex justify-between items-center">
+                <h3 className="font-bold flex items-center gap-2"><MessageCircle className="w-5 h-5 text-green-600" /> Chat with Agency</h3>
+                <button onClick={() => setShowChat(false)} className="p-2 hover:bg-slate-100 rounded-full"><X className="w-5 h-5" /></button>
+              </div>
+              <div className="p-3 border-b border-slate-100 bg-green-50">
+                <p className="text-sm font-semibold">{booking?.vehicle}</p>
+                <p className="text-xs text-slate-500">Booking ID: {booking?.id}</p>
+              </div>
+              <div className="flex-1 overflow-auto p-4 space-y-3">
+                {chatMessages.length === 0 ? (
+                  <div className="text-center py-8 text-slate-400">
+                    <MessageCircle className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">Start a conversation with the agency</p>
+                  </div>
+                ) : (
+                  chatMessages.map((msg, i) => (
+                    <div key={i} className={`flex ${msg.from === 'customer' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[80%] px-4 py-2 rounded-2xl ${msg.from === 'customer' ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-800'}`}>
+                        <p className="text-sm">{msg.text}</p>
+                        <p className={`text-[10px] ${msg.from === 'customer' ? 'text-green-100' : 'text-slate-400'} mt-1`}>{msg.time}</p>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="p-4 border-t border-slate-200 flex gap-2">
+                <input value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && sendChatMessage()} placeholder="Type a message..." className="flex-1 p-3 border rounded-xl" />
+                <Button onClick={sendChatMessage}><Send className="w-4 h-4" /></Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
