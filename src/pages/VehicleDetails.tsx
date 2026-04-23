@@ -185,9 +185,9 @@ const VehicleDetails = () => {
                 <p className="text-[10px] text-right text-emerald-600 font-bold uppercase tracking-wider">Fully Refundable Deposit Included</p>
               </div>
 
-              <Link to={`/journey/${vehicle.id}`}>
+              <Link to={`/checkout/${vehicle.id}`}>
                 <Button size="lg" className="w-full rounded-2xl shadow-primary-200 h-14 text-lg">
-                  Start Journey Meter
+                  Book Now
                 </Button>
               </Link>
               <div className="mt-4 flex justify-center gap-3">

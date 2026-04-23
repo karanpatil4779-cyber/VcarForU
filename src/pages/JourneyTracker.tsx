@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { Navigation, Map, StopCircle, Receipt, MapPin, IndianRupee, Car, Zap } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Navigation, Map, StopCircle, IndianRupee, Car, Zap, Siren } from 'lucide-react';
 import { findVehicleById } from '../utils/auth';
 import Button from '../components/ui/Button';
 
@@ -145,6 +145,24 @@ const JourneyTracker = () => {
               >
                 <Map className="w-5 h-5 mr-2" />
                 Navigate via Google Maps
+              </a>
+            </div>
+
+            {/* Emergency Buttons */}
+            <div className="mt-4 flex gap-3">
+              <a 
+                href="tel:100"
+                className="flex-1 flex items-center justify-center h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all"
+              >
+                <Siren className="w-5 h-5 mr-2" />
+                Police (100)
+              </a>
+              <a 
+                href="tel:102"
+                className="flex-1 flex items-center justify-center h-12 rounded-xl bg-red-600 hover:bg-red-700 text-white font-semibold transition-all"
+              >
+                <Siren className="w-5 h-5 mr-2" />
+                Ambulance (102)
               </a>
             </div>
           </div>

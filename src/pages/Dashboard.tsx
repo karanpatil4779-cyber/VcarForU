@@ -466,16 +466,24 @@ const Dashboard = () => {
                           </div>
                           <div className="flex flex-col items-end gap-2">
                             <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-semibold">Confirmed</span>
-                            <button
-                              onClick={() => setSelectedRideId(selectedRideId === r.id ? null : r.id)}
-                              className={`text-xs px-3 py-1.5 rounded-lg font-semibold border transition-all ${
-                                selectedRideId === r.id
-                                  ? `${darkMode ? 'border-slate-600 bg-slate-700 text-slate-300' : 'border-slate-300 bg-slate-100 text-slate-600'}`
-                                  : `${darkMode ? 'border-red-700 bg-red-900/40 text-red-400 hover:bg-red-900/70' : 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100'}`
-                              }`}
-                            >
-                              {selectedRideId === r.id ? 'Keep Ride' : 'Cancel Ride'}
-                            </button>
+                            <div className="flex gap-2">
+                              <Link
+                                to={`/journey/${r.id}`}
+                                className="text-xs px-3 py-1.5 rounded-lg font-semibold border transition-all bg-primary-600 text-white hover:bg-primary-700"
+                              >
+                                Start Journey
+                              </Link>
+                              <button
+                                onClick={() => setSelectedRideId(selectedRideId === r.id ? null : r.id)}
+                                className={`text-xs px-3 py-1.5 rounded-lg font-semibold border transition-all ${
+                                  selectedRideId === r.id
+                                    ? `${darkMode ? 'border-slate-600 bg-slate-700 text-slate-300' : 'border-slate-300 bg-slate-100 text-slate-600'}`
+                                    : `${darkMode ? 'border-red-700 bg-red-900/40 text-red-400 hover:bg-red-900/70' : 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100'}`
+                                }`}
+                              >
+                                {selectedRideId === r.id ? 'Keep Ride' : 'Cancel Ride'}
+                              </button>
+                            </div>
                           </div>
                         </div>
                         {selectedRideId === r.id && (
