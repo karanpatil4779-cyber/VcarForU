@@ -20,7 +20,57 @@ const AgencyDashboard = () => {
   const [showChat, setShowChat] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [chatMessages, setChatMessages] = useState<{from: 'agency'|'customer'; text: string; time: string}[]>([]);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [chatInput, setChatInput] = useState('');
+  const [customers, setCustomers] = useState<{id: string; name: string; phone: string; lastMessage: string; time: string; unread: number; online: boolean}[]>([
+    { id: 'c1', name: 'Karan Sharma', phone: '+91 98765 43210', lastMessage: 'Is home delivery available?', time: '10:45 AM', unread: 2, online: true },
+    { id: 'c2', name: 'Tanmay Patel', phone: '+91 98765 43211', lastMessage: 'What documents required?', time: '10:30 AM', unread: 1, online: true },
+    { id: 'c3', name: 'Sujal Mehta', phone: '+91 98765 43212', lastMessage: 'Pickup from airport ok?', time: '10:15 AM', unread: 0, online: false },
+    { id: 'c4', name: 'Dhaval Singh', phone: '+91 98765 43213', lastMessage: 'Price for weekend rental?', time: '09:45 AM', unread: 3, online: true },
+    { id: 'c5', name: 'Abhay Joshi', phone: '+91 98765 43214', lastMessage: 'Can I get car delivered?', time: 'Yesterday', unread: 0, online: false },
+  ]);
+  const [customerChats, setCustomerChats] = useState<Record<string, {from: 'agency'|'customer'; text: string; time: string}[]>>({
+    'c1': [
+      { from: 'customer', text: 'Hi, I want to rent a car for my family trip', time: '10:00 AM' },
+      { from: 'agency', text: 'Sure! Which car are you interested in?', time: '10:05 AM' },
+      { from: 'customer', text: 'Thinking of Innova. Is Home delivery available?', time: '10:10 AM' },
+      { from: 'agency', text: 'Yes! We provide free home delivery within 15km', time: '10:15 AM' },
+      { from: 'customer', text: 'Great! What about pick up from Andheri?', time: '10:30 AM' },
+      { from: 'agency', text: 'We can arrange pickup from any location in Mumbai', time: '10:35 AM' },
+      { from: 'customer', text: 'Is home delivery available?', time: '10:45 AM' },
+    ],
+    'c2': [
+      { from: 'customer', text: 'Hello, new here. What documents do I need?', time: '9:45 AM' },
+      { from: 'agency', text: 'You need - Aadhar/Voter ID, DL, and 1 photo', time: '9:50 AM' },
+      { from: 'customer', text: 'Is PAN card okay instead of Aadhar?', time: '10:00 AM' },
+      { from: 'agency', text: 'Yes, any address proof works. Also need deposit', time: '10:10 AM' },
+      { from: 'customer', text: 'What documents required?', time: '10:30 AM' },
+    ],
+    'c3': [
+      { from: 'customer', text: 'Hi, landing at 6PM. Can I pickup from airport?', time: '9:30 AM' },
+      { from: 'agency', text: 'Yes! We offer free airport pickup', time: '9:35 AM' },
+      { from: 'customer', text: 'Great! What about drop back?', time: '9:45 AM' },
+      { from: 'agency', text: 'Airport drop also free with 3+ day booking', time: '9:50 AM' },
+      { from: 'customer', text: 'Pickup from airport ok?', time: '10:15 AM' },
+    ],
+    'c4': [
+      { from: 'customer', text: 'Want to rent for weekend. What rates?', time: '8:00 AM' },
+      { from: 'agency', text: 'We have weekend special - 10% off!', time: '8:10 AM' },
+      { from: 'customer', text: 'For Creta weekend?', time: '8:20 AM' },
+      { from: 'agency', text: 'Creta weekend: ₹3500 for 2 days', time: '8:25 AM' },
+      { from: 'customer', text: 'Includes fuel?', time: '8:30 AM' },
+      { from: 'agency', text: '100km included. Extra at ₹15/km', time: '8:35 AM' },
+      { from: 'customer', text: 'Price for weekend rental?', time: '9:45 AM' },
+    ],
+    'c5': [
+      { from: 'customer', text: 'Hi, first time user. How delivery works?', time: 'Yesterday 4:00 PM' },
+      { from: 'agency', text: 'Just share your address. We deliver to door!', time: 'Yesterday 4:10 PM' },
+      { from: 'customer', text: 'Any extra charges?', time: 'Yesterday 4:15 PM' },
+      { from: 'agency', text: 'Free within 10km. ₹5/km beyond that', time: 'Yesterday 4:20 PM' },
+      { from: 'customer', text: 'Can I get car delivered?', time: 'Yesterday 5:00 PM' },
+      { from: 'agency', text: 'Yes! Just confirm your address and time', time: 'Yesterday 5:05 PM' },
+    ],
+  });
   const [surgeMultiplier, setSurgeMultiplier] = useState(1);
   const [fraudAlerts, setFraudAlerts] = useState<{id: string; message: string; severity: 'low'|'medium'|'high'}[]>([]);
   const [notifications, setNotifications] = useState<{id: string; text: string; type: 'sms'|'email'; time: string; read: boolean}[]>([]);
@@ -247,7 +297,7 @@ const AgencyDashboard = () => {
               <div className={`rounded-3xl border p-4 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
                 <h3 className={`font-bold mb-3 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Quick Actions</h3>
                 <div className="space-y-2">
-                  <Button onClick={() => setActiveTab('chat')} className="w-full justify-start"><MessageSquare className="w-4 h-4 mr-2" /> Chat with Customers</Button>
+                  <Button onClick={() => setActiveTab('chat')} className="w-full justify-start"><MessageSquare className="w-4 h-4 mr-2" /> Chats (5)</Button>
                   <Button onClick={() => setActiveTab('surge')} className="w-full justify-start"><Zap className="w-4 h-4 mr-2" /> Set Surge Pricing</Button>
                   <Button onClick={() => setActiveTab('maintenance')} className="w-full justify-start"><Wrench className="w-4 h-4 mr-2" /> Maintenance Alerts</Button>
                 </div>
@@ -269,23 +319,59 @@ const AgencyDashboard = () => {
 
         {activeTab === 'chat' && (
           <div className={`rounded-3xl border p-5 ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-            <h2 className={`text-xl font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}><MessageSquare className="w-6 h-6 text-blue-600" /> Customer Interactions</h2>
-            {bookings.length === 0 ? <p className={darkMode ? 'text-slate-400' : 'text-slate-500'}>No customer bookings to chat with.</p> : (
-              <div className="space-y-4">
-                {bookings.filter(b => b.status === 'Confirmed').slice(-5).reverse().map(b => (
-                  <div key={b.id} className={`border rounded-xl p-4 ${darkMode ? 'border-slate-700' : 'border-slate-200'}`}>
-                    <div className="flex justify-between mb-2">
-                      <div><p className={`font-bold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{b.userName}</p><p className={`text-xs ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{b.userEmail}</p></div>
-                      <div className="flex gap-1">
-                        <a href={`tel:${b.userId}`} className="p-2 bg-blue-100 rounded-lg text-blue-600 hover:bg-blue-200"><Phone className="w-4 h-4" /></a>
-                        <a href={`mailto:${b.userEmail}`} className="p-2 bg-green-100 rounded-lg text-green-600 hover:bg-green-200"><Mail className="w-4 h-4" /></a>
-                      </div>
+            <h2 className={`text-xl font-bold mb-4 flex items-center gap-2 ${darkMode ? 'text-white' : 'text-slate-900'}`}><MessageSquare className="w-6 h-6 text-blue-600" /> Customer Chats (WhatsApp Style)</h2>
+            {!selectedChat ? (
+              <div className="space-y-2">
+                {customers.map(c => (
+                  <div key={c.id} onClick={() => setSelectedChat(c.id)} className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all ${darkMode ? 'hover:bg-slate-800 bg-slate-800/50 border border-slate-700' : 'hover:bg-slate-50 bg-slate-50 border border-slate-200'}`}>
+                    <div className="relative">
+                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold text-lg">{c.name[0]}</div>
+                      {c.online && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 rounded-full"></span>}
                     </div>
-                    <div className={`rounded-xl p-3 text-sm ${darkMode ? 'bg-slate-800 text-slate-400' : 'bg-slate-50 text-slate-600'}`}>
-                      <p>Vehicle: {b.vehicle} | Amount: ₹{b.amount} | Status: {b.status}</p>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-center">
+                        <p className={`font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{c.name}</p>
+                        <span className={`text-xs ${darkMode ? 'text-slate-500' : 'text-slate-400'}`}>{c.time}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <p className={`text-sm truncate ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>{c.lastMessage}</p>
+                        {c.unread > 0 && <span className="w-5 h-5 bg-green-500 text-white text-[10px] rounded-full flex items-center justify-center">{c.unread}</span>}
+                      </div>
                     </div>
                   </div>
                 ))}
+              </div>
+            ) : (
+              <div>
+                <div className={`flex items-center gap-3 mb-4 pb-3 border-b ${darkMode ? 'border-slate-700' : 'border-slate-200'}`}>
+                  <button onClick={() => setSelectedChat(null)} className={`p-2 rounded-lg ${darkMode ? 'hover:bg-slate-800' : 'hover:bg-slate-100'}`}>←</button>
+                  {(() => { const c = customers.find(x => x.id === selectedChat); return c ? (
+                    <>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center text-white font-bold">{c.name[0]}</div>
+                      <div><p className={`font-semibold ${darkMode ? 'text-white' : 'text-slate-900'}`}>{c.name}</p><p className={`text-xs ${c.online ? 'text-green-500' : darkMode ? 'text-slate-500' : 'text-slate-400'}`}>{c.online ? 'Online' : 'Offline'}</p></div>
+                    </>
+                  ) : null; })()}
+                </div>
+                <div className="space-y-2 mb-4 max-h-96 overflow-y-auto">
+                  {(customerChats[selectedChat] || []).map((msg, i) => (
+                    <div key={i} className={`flex ${msg.from === 'agency' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[75%] px-4 py-2 rounded-2xl ${msg.from === 'agency' ? 'bg-green-500 text-white' : (darkMode ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-800')}`}>
+                        <p className="text-sm">{msg.text}</p>
+                        <p className={`text-[10px] ${msg.from === 'agency' ? 'text-green-100' : 'text-slate-400'} mt-1`}>{msg.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className={`flex gap-2 p-3 rounded-xl border ${darkMode ? 'border-slate-700 bg-slate-800' : 'border-slate-200 bg-slate-50'}`}>
+                  <input 
+                    value={chatInput} 
+                    onChange={e => setChatInput(e.target.value)} 
+                    placeholder="Type a message..." 
+                    className={`flex-1 p-2 border rounded-lg text-sm ${darkMode ? 'bg-slate-700 border-slate-600 text-white' : 'border'}`}
+                    onKeyPress={e => e.key === 'Enter' && selectedChat && (setCustomerChats(prev => ({...prev, [selectedChat]: [...(prev[selectedChat] || []), {from: 'agency', text: chatInput, time: new Date().toLocaleTimeString()}]})), setChatInput(''))}
+                  />
+                  <Button onClick={() => selectedChat && (setCustomerChats(prev => ({...prev, [selectedChat]: [...(prev[selectedChat] || []), {from: 'agency', text: chatInput, time: new Date().toLocaleTimeString()}]})), setChatInput(''))}><Send className="w-4 h-4" /></Button>
+                </div>
               </div>
             )}
           </div>
